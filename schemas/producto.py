@@ -38,6 +38,14 @@ class ProductoDetalleResponse(ProductoResponse):
     class Config:
         from_attributes = True
 
+class ListaCompraResponse(BaseModel):
+    producto_id: int
+    codigo: str
+    nombre: str
+    stock_actual: float
+    stock_minimo: int
+    cantidad_sugerida: float
+
 # Para evitar referencias circulares
 from schemas.categoria import CategoriaResponse
 from schemas.proveedor import ProveedorResponse 

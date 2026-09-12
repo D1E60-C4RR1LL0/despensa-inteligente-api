@@ -140,3 +140,24 @@ def test_producto_requires_auth(client):
         }
     )
     assert response.status_code == status.HTTP_401_UNAUTHORIZED 
+    
+    
+def test_lista_compras(authorized_client, db_session, test_producto, test_stock):
+    test_stock.cantidad = 2
+    test_producto.stock_minimo = 5
+    db_session.commit()
+
+    response = authorized_client.get("/productos/lista-compras")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    producto = next(
+        item for item in data
+        if item["producto_id"] == test_producto.id
+    )
+
+    assert producto["stock_actual"] == 2
+    assert producto["stock_minimo"] == 5
+    assert producto["cantidad_sugerida"] == 3
