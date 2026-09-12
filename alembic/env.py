@@ -7,6 +7,21 @@ from sqlalchemy import pool
 
 from alembic import context
 
+from dotenv import load_dotenv
+
+
+config = context.config
+
+# Carga las variables de entorno del archivo .env
+load_dotenv()
+
+database_url = os.getenv("DATABASE_URL")
+
+if not database_url:
+    raise RuntimeError("DATABASE_URL no está configurada")
+
+config.set_main_option("sqlalchemy.url", database_url)
+
 # Agrega la ruta del proyecto a sys.path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
