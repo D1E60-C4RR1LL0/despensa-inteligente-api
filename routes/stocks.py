@@ -75,11 +75,12 @@ async def read_stock_alertas(
     db: Session = Depends(get_db)
 ):
     stocks = db.query(StockModel).join(
-        ProductoModel,
-        StockModel.producto_id == ProductoModel.id
-    ).filter(
-        StockModel.cantidad <= ProductoModel.stock_minimo
-    ).all()
+    ProductoModel,
+    StockModel.producto_id == ProductoModel.id
+).filter(
+    StockModel.cantidad <= ProductoModel.stock_minimo,
+    ProductoModel.activo == True
+).all()
 
     return stocks
 
