@@ -6,7 +6,7 @@ from sqlalchemy import func
 from config.database import get_db
 from models.producto import Producto as ProductoModel
 from models.stock import Stock as StockModel
-from schemas.producto import ProductoCreate, ProductoResponse, ProductoUpdate, ProductoDetalleResponse
+from schemas.producto import ProductoCreate, ProductoResponse, ProductoUpdate, ProductoDetalleResponse, ListaCompraResponse
 from utils.auth import get_current_active_user
 from models.user import User as UserModel
 
@@ -38,6 +38,51 @@ async def read_productos(
 ):
     productos = db.query(ProductoModel).offset(skip).limit(limit).all()
     return productos
+
+@router.get("/lista-compras", response_model=List[ListaCompraResponse])
+async def read_lista_compras(
+    current_user: UserModel = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    productos = (
+        db.query(
+            ProductoModel.id.label("producto_id"),
+            ProductoModel.codigo,
+            ProductoModel.nombre,
+            func.coalesce(func.sum(StockModel.cantidad), 0).label("stock_actual"),
+            ProductoModel.stock_minimo
+        )
+        .outerjoin(
+            StockModel,
+            StockModel.producto_id == ProductoModel.id
+        )
+        .filter(
+            ProductoModel.activo == True
+        )
+        .group_by(
+            ProductoModel.id,
+            ProductoModel.codigo,
+            ProductoModel.nombre,
+            ProductoModel.stock_minimo
+        )
+        .having(
+            func.coalesce(func.sum(StockModel.cantidad), 0)
+            < ProductoModel.stock_minimo
+        )
+        .all()
+    )
+
+    return [
+        {
+            "producto_id": producto.producto_id,
+            "codigo": producto.codigo,
+            "nombre": producto.nombre,
+            "stock_actual": producto.stock_actual,
+            "stock_minimo": producto.stock_minimo,
+            "cantidad_sugerida": producto.stock_minimo - producto.stock_actual
+        }
+        for producto in productos
+    ]
 
 @router.get("/{producto_id}", response_model=ProductoDetalleResponse)
 async def read_producto(

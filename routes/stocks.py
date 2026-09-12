@@ -69,6 +69,21 @@ async def read_stocks(
     stocks = query.offset(skip).limit(limit).all()
     return stocks
 
+@router.get("/alertas", response_model=List[StockDetalleResponse])
+async def read_stock_alertas(
+    current_user: UserModel = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    stocks = db.query(StockModel).join(
+    ProductoModel,
+    StockModel.producto_id == ProductoModel.id
+).filter(
+    StockModel.cantidad <= ProductoModel.stock_minimo,
+    ProductoModel.activo == True
+).all()
+
+    return stocks
+
 @router.get("/{stock_id}", response_model=StockDetalleResponse)
 async def read_stock(
     stock_id: int, 
