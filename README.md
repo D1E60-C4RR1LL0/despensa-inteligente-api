@@ -1,6 +1,6 @@
 # Despensa Inteligente API
 
-Es una API REST para la gestión de productos, existencias y movimientos de inventario de una despensa doméstica.
+API REST para la gestión de productos, existencias y movimientos de inventario de una despensa doméstica.
 
 El proyecto está desarrollado con **FastAPI** y **SQLAlchemy** e incorpora autenticación de usuarios, gestión de productos, control de stock, movimientos de inventario y funcionalidades de apoyo para productos con existencias bajas.
 
@@ -10,21 +10,27 @@ Además, esta entrega incorpora un flujo de trabajo basado en **Git**, integraci
 
 ## Contenido
 
-- [Características](#-características)
-- [Tecnologías](#-tecnologías)
-- [Estructura del proyecto](#-estructura-del-proyecto)
-- [Flujo de trabajo Git](#-flujo-de-trabajo-git)
-- [Modelos de branching](#-modelos-de-branching)
-- [Convenciones de ramas](#-convenciones-de-ramas)
-- [Convenciones de commits](#-convenciones-de-commits)
-- [Pull Requests](#-pull-requests)
-- [Integración continua](#-integración-continua)
-- [Configuración segura de base de datos](#-configuración-segura-de-base-de-datos)
-- [Pruebas automatizadas](#-pruebas-automatizadas)
-- [Funcionalidades agregadas](#-funcionalidades-agregadas)
-- [Versionamiento y Releases](#-versionamiento-y-releases)
-- [Instalación](#-instalación)
-- [Documentación de la API](#-documentación-de-la-api)
+- [Características](#características)
+- [Tecnologías](#tecnologías)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [Flujo de trabajo Git](#flujo-de-trabajo-git)
+- [Modelos de branching](#modelos-de-branching)
+- [Convenciones de ramas](#convenciones-de-ramas)
+- [Convenciones de commits](#convenciones-de-commits)
+- [Flujo colaborativo y trazabilidad](#flujo-colaborativo-y-trazabilidad)
+- [Pull Requests](#pull-requests)
+- [Estrategia de revisión](#estrategia-de-revisión)
+- [Flujo de merge](#flujo-de-merge)
+- [Flujo DevOps](#flujo-devops)
+- [Integración continua](#integración-continua)
+- [Configuración segura de base de datos](#configuración-segura-de-base-de-datos)
+- [Pruebas automatizadas](#pruebas-automatizadas)
+- [Funcionalidades agregadas](#funcionalidades-agregadas)
+- [Versionamiento y Releases](#versionamiento-y-releases)
+- [Requisitos previos](#requisitos-previos)
+- [Instalación](#instalación)
+- [Documentación de la API](#documentación-de-la-api)
+- [Estado del proyecto](#estado-del-proyecto)
 
 ---
 
@@ -34,7 +40,7 @@ Además, esta entrega incorpora un flujo de trabajo basado en **Git**, integraci
 
 - Autenticación de usuarios mediante JWT.
 - Control de acceso mediante roles.
-- ️Gestión de categorías.
+- Gestión de categorías.
 - Gestión de proveedores.
 - Gestión de ubicaciones.
 - Gestión de productos.
@@ -43,18 +49,18 @@ Además, esta entrega incorpora un flujo de trabajo basado en **Git**, integraci
 
 ### Funcionalidades agregadas en esta entrega
 
-- ️Alertas de stock bajo.
+- Alertas de stock bajo.
 - Lista de compras sugerida.
 - Exclusión de productos inactivos de las alertas de stock.
 - Pruebas automatizadas.
-- ️Integración continua con GitHub Actions.
+- Integración continua con GitHub Actions.
 - Flujo de trabajo basado en ramas.
 - Integración de cambios mediante Pull Requests.
-- ️Versionamiento mediante GitHub Releases.
+- Versionamiento mediante GitHub Releases.
 
 ---
 
-## ️ Tecnologías
+## Tecnologías
 
 | Tecnología | Uso |
 |---|---|
@@ -77,15 +83,15 @@ Además, esta entrega incorpora un flujo de trabajo basado en **Git**, integraci
 despensa-inteligente-api/
 │
 ├── .github/
-│  └── workflows/
-│    └── ci.yml
+│   └── workflows/
+│       └── ci.yml
 │
 ├── alembic/
-│  ├── versions/
-│  └── env.py
+│   ├── versions/
+│   └── env.py
 │
 ├── config/
-│  └── database.py
+│   └── database.py
 │
 ├── models/
 ├── routes/
@@ -103,42 +109,44 @@ despensa-inteligente-api/
 
 # Flujo de trabajo Git
 
-En el proyecto se utiliza una estrategia de ramas para separar el desarrollo de nuevas funcionalidades, las correcciones y las versiones estables.
+El repositorio cuenta con las ramas principales `main` y `develop`, además de ramas de trabajo `feature/*` y `hotfix/*`.
+
+La estructura utilizada es:
 
 ```text
 main
- │
- └── develop
-    │
-    ├── feature/*
-    │
-    └── hotfix/*
+  │
+  └── develop
+        │
+        ├── feature/*
+        │
+        └── hotfix/*
 ```
 
 ### Flujo general
 
 ```text
 ┌─────────────────────────┐
-│    feature/*     │
-│  Nueva funcionalidad  │
+│       feature/*         │
+│   Nueva funcionalidad   │
 └────────────┬────────────┘
-       │
-       │ Pull Request
-       ▼
+             │
+             │ Pull Request
+             ▼
 ┌─────────────────────────┐
-│    develop     │
-│ Rama de integración   │
+│        develop          │
+│ Rama de integración     │
 └────────────┬────────────┘
-       │
-       │ Pull Request
-       ▼
+             │
+             │ Pull Request
+             ▼
 ┌─────────────────────────┐
-│     main      │
-│  Versión estable   │
+│          main           │
+│    Versión estable      │
 └────────────┬────────────┘
-       │
-       ▼
-    GitHub Release
+             │
+             ▼
+        GitHub Release
 ```
 
 ## Ramas principales
@@ -149,13 +157,13 @@ Contiene las versiones estables del proyecto.
 
 ### `develop`
 
-Es la rama que utilicé para integrar y validar cambios antes de incorporarlos a la versión estable.
+Es la rama utilizada para integrar y validar cambios antes de incorporarlos a la versión estable.
 
 ### `feature/*`
 
-Fue utilizada para desarrollar nuevas funcionalidades de forma aislada.
+Se utilizan para desarrollar nuevas funcionalidades de forma aislada.
 
-Ejemplos utilizados:
+Ejemplos utilizados durante el proyecto:
 
 ```text
 feature/alertas-stock-bajo
@@ -164,9 +172,9 @@ feature/lista-compras
 
 ### `hotfix/*`
 
-Fue utilizada para desarrollar correcciones específicas.
+Se utilizan para desarrollar correcciones específicas sobre funcionalidades existentes.
 
-Ejemplo utilizado:
+Ejemplo utilizado durante el proyecto:
 
 ```text
 hotfix/corregir-alerta-stock
@@ -176,6 +184,8 @@ hotfix/corregir-alerta-stock
 
 # Modelos de branching
 
+Existen diferentes estrategias para organizar el desarrollo mediante ramas.
+
 ## Git Flow
 
 Git Flow utiliza ramas principales como `main` y `develop`, complementadas por ramas destinadas a funcionalidades, correcciones y versiones.
@@ -184,16 +194,16 @@ Git Flow utiliza ramas principales como `main` y `develop`, complementadas por r
 main
  │
  └── develop
-   ├── feature/*
-   ├── release/*
-   └── hotfix/*
+      ├── feature/*
+      ├── release/*
+      └── hotfix/*
 ```
 
 Permite separar el desarrollo de nuevas funcionalidades de las versiones estables.
 
 ## GitHub Flow
 
-GitHub Flow utiliza una estructura más sencilla, generalmente basada en una rama principal y ramas temporales.
+GitHub Flow utiliza una estructura más sencilla, generalmente basada en una rama principal y ramas temporales integradas mediante Pull Requests.
 
 ```text
 main
@@ -201,9 +211,9 @@ main
  ├── feature
  │
  └── Pull Request
-     │
-     ▼
-    merge
+          │
+          ▼
+        merge
 ```
 
 Es adecuado para equipos que buscan un flujo sencillo y entregas frecuentes.
@@ -222,22 +232,21 @@ main
 
 Busca reducir la duración de las ramas y favorecer la integración frecuente.
 
-
 ### Comparación de modelos
 
 | Modelo | Característica principal | Ventaja | Contexto recomendado |
 |---|---|---|---|
-| Git Flow | Utiliza ramas `main`, `develop`, `feature` y `hotfix` | Separa claramente el desarrollo de las versiones estables | Proyectos con entregas planificadas y varias etapas de integración |
-| GitHub Flow | Utiliza una rama principal y ramas temporales integradas mediante Pull Requests | Flujo simple y rápido | Equipos que realizan entregas frecuentes |
+| Git Flow | Utiliza `main`, `develop`, `feature` y `hotfix` | Separa el desarrollo de las versiones estables | Proyectos con entregas planificadas |
+| GitHub Flow | Utiliza una rama principal y ramas temporales | Flujo simple y rápido | Equipos con entregas frecuentes |
 | Trunk-Based Development | Concentra la integración alrededor de una rama principal | Reduce la divergencia entre ramas | Equipos con integración continua y CI/CD maduro |
 
 ## Estrategia utilizada
 
-Para esta entrega utilicé una estructura basada en **Git Flow**, con `main` como rama estable, `develop` como rama de integración y ramas `feature/*` y `hotfix/*` para cambios específicos.
+Para esta entrega elegí **Git Flow** porque, al realizar el desarrollo de manera individual, me permite mantener separados los distintos cambios y trabajar cada funcionalidad de forma independiente. Además, como esta actividad exige demostrar un flujo de desarrollo mediante ramas, Pull Requests y merges, esta estrategia facilita representar y mantener ordenado el proceso. Finalmente, la separación entre `feature/*`, `develop` y `main` me permite mantener una trazabilidad clara de los cambios realizados y revisar posteriormente qué modificaciones corresponden a cada funcionalidad.
 
 ---
 
-# ️ Convenciones de ramas
+# Convenciones de ramas
 
 | Tipo | Formato | Ejemplo |
 |---|---|---|
@@ -246,21 +255,31 @@ Para esta entrega utilicé una estructura basada en **Git Flow**, con `main` com
 | Nueva funcionalidad | `feature/<nombre>` | `feature/lista-compras` |
 | Corrección | `hotfix/<nombre>` | `hotfix/corregir-alerta-stock` |
 
+### Convenciones utilizadas
+
+- Utilizar nombres breves y descriptivos.
+- Utilizar minúsculas.
+- Separar palabras mediante guiones.
+- Utilizar el prefijo correspondiente al tipo de trabajo.
+- Evitar nombres genéricos como `cambios`, `prueba` o `nueva-rama`.
+
 ---
 
 # Convenciones de commits
+
+Los commits utilizan una estructura basada en tipos para identificar el propósito del cambio.
 
 | Tipo | Uso |
 |---|---|
 | `feat:` | Nueva funcionalidad |
 | `fix:` | Corrección de un problema |
 | `hotfix:` | Corrección urgente |
-| `ci:` | Integración continua |
-| `test:` | Pruebas |
-| `docs:` | Documentación |
+| `ci:` | Cambios relacionados con integración continua |
+| `test:` | Incorporación o modificación de pruebas |
+| `docs:` | Cambios de documentación |
 | `chore:` | Mantenimiento o configuración |
 
-### Ejemplos reales
+### Ejemplos utilizados durante el proyecto
 
 ```text
 feat: agregar alertas de stock bajo
@@ -273,10 +292,11 @@ chore: configurar entorno seguro de base de datos
 
 ---
 
-
 # Flujo colaborativo y trazabilidad
 
 El desarrollo se realizó utilizando Git como sistema de control de versiones y GitHub como plataforma de colaboración.
+
+Aunque el desarrollo fue realizado individualmente, se utilizó el flujo de trabajo colaborativo solicitado para separar funcionalidades, correcciones, revisiones e integración.
 
 El flujo utilizado fue:
 
@@ -293,7 +313,7 @@ El flujo utilizado fue:
 11. Integrar `develop` en `main` mediante Pull Request.
 12. Crear la versión estable mediante GitHub Release.
 
-### Comandos principales del flujo
+### Comandos principales
 
 ```bash
 git clone <repositorio>
@@ -324,21 +344,21 @@ Los cambios desarrollados en ramas independientes se incorporan mediante **Pull 
 
 ```text
 feature/*
-   │
-   ▼
+     │
+     ▼
 Pull Request
-   │
-   ▼
+     │
+     ▼
  develop
-   │
-   ▼
+     │
+     ▼
 Pull Request
-   │
-   ▼
- main
+     │
+     ▼
+  main
 ```
 
-Durante el desarrollo se utilizaron Pull Requests para integrar:
+Durante el desarrollo se integraron los siguientes cambios:
 
 | Cambio | Rama de origen | Rama de destino |
 |---|---|---|
@@ -349,9 +369,96 @@ Durante el desarrollo se utilizaron Pull Requests para integrar:
 
 ---
 
-# ️ Integración continua
+# Estrategia de revisión
 
-En el proyecto utilizó **GitHub Actions** para ejecutar automáticamente las pruebas.
+Los cambios se integran mediante Pull Requests para mantener una revisión previa antes de incorporarlos a las ramas de integración o estable.
+
+La revisión considera:
+
+- Verificar que el cambio corresponda al objetivo de la rama.
+- Revisar los archivos modificados antes del merge.
+- Ejecutar las pruebas automatizadas.
+- Verificar que GitHub Actions finalice correctamente.
+- Revisar que no existan conflictos con la rama destino.
+- Integrar el Pull Request después de que las validaciones sean satisfactorias.
+
+En los Pull Requests hacia `main`, el resultado de GitHub Actions se utiliza como validación automática antes de realizar el merge.
+
+---
+
+# Flujo de merge
+
+Los cambios de las ramas `feature/*` y `hotfix/*` se integran mediante Pull Requests hacia `develop`.
+
+Una vez que los cambios se encuentran validados, `develop` se integra mediante un Pull Request hacia `main`.
+
+```text
+feature/*
+    │
+    │ Pull Request
+    ▼
+develop
+    │
+    │ Pull Request
+    ▼
+main
+```
+
+El merge se realiza después de revisar los cambios y verificar el resultado de las pruebas automatizadas.
+
+---
+
+# Flujo DevOps
+
+El proyecto implementa un flujo DevOps que integra control de versiones, colaboración, integración continua, pruebas automatizadas e incorporación de versiones estables.
+
+```text
+Desarrollo local
+      |
+      v
+     Git
+      |
+      v
+    GitHub
+      |
+      v
+ Pull Request
+      |
+      v
+GitHub Actions
+      |
+      v
+Instalación de dependencias
+      |
+      v
+Ejecución de pytest
+      |
+      v
+Validación automática
+      |
+      v
+    Merge
+      |
+      v
+  develop
+      |
+      v
+ Pull Request
+      |
+      v
+    main
+      |
+      v
+ GitHub Release
+```
+
+Este flujo permite detectar errores mediante validaciones automáticas antes de integrar cambios en las ramas principales y mantener una versión estable del proyecto.
+
+---
+
+# Integración continua
+
+El proyecto utiliza **GitHub Actions** para ejecutar automáticamente las pruebas.
 
 El workflow se encuentra en:
 
@@ -359,54 +466,55 @@ El workflow se encuentra en:
 .github/workflows/ci.yml
 ```
 
-Se ejecuta ante:
+## Eventos que ejecutan el pipeline
+
+El workflow se ejecuta ante:
 
 ```yaml
 on:
- push:
-  branches:
-   - develop
+  push:
+    branches:
+      - develop
 
- pull_request:
-  branches:
-   - main
+  pull_request:
+    branches:
+      - main
 ```
 
-### Flujo del pipeline
+## Flujo del pipeline
 
 ```text
 Cambio en el repositorio
-     │
-     ▼
-  GitHub Actions
-     │
-     ▼
- Descargar repositorio
-     │
-     ▼
-  Configurar Python 3.12
-     │
-     ▼
+          |
+          v
+    GitHub Actions
+          |
+          v
+  Descargar repositorio
+          |
+          v
+   Configurar Python 3.12
+          |
+          v
  Instalar dependencias
-     │
-     ▼
+          |
+          v
 Configurar entorno de pruebas
-     │
-     ▼
-    Ejecutar pytest
-     │
-     ▼
-  Resultado del pipeline
+          |
+          v
+       Ejecutar pytest
+          |
+          v
+   Resultado del pipeline
 ```
-
----
-
 
 ## Rol de GitHub Actions dentro de CI/CD
 
-GitHub Actions se utiliza en esta entrega como herramienta de Integración Continua (CI).
+GitHub Actions se utiliza en esta entrega como herramienta de **Integración Continua (CI)**.
 
-Cada cambio realizado sobre `develop` y cada Pull Request dirigido hacia `main` puede activar automáticamente el workflow. El pipeline permite:
+Cada cambio realizado sobre `develop` y cada Pull Request dirigido hacia `main` puede activar automáticamente el workflow.
+
+El pipeline permite:
 
 - Obtener la versión actual del código.
 - Configurar el entorno de Python.
@@ -443,11 +551,18 @@ Ejemplo para un entorno local:
 DATABASE_URL=mysql+pymysql://usuario:contraseña@localhost/despensa
 ```
 
+### Buenas prácticas
+
+- No almacenar credenciales directamente en el código.
+- No publicar archivos `.env`.
+- Configurar las variables necesarias en cada entorno.
+- Utilizar una base de datos independiente para las pruebas automatizadas cuando corresponda.
+
 ---
 
 # Pruebas automatizadas
 
-El proyecto utiliza **Pytest**.
+El proyecto utiliza **Pytest** para realizar pruebas automatizadas.
 
 Para ejecutar las pruebas localmente:
 
@@ -480,9 +595,9 @@ Las mismas pruebas se ejecutan automáticamente mediante GitHub Actions.
 
 # Funcionalidades agregadas
 
-## ️ Alertas de stock bajo
+## Alertas de stock bajo
 
-Endpoint para consultar productos cuyo stock actual se encuentra en o por debajo del stock mínimo configurado.
+Se agregó un endpoint para consultar productos cuyo stock actual se encuentra en o por debajo del stock mínimo configurado.
 
 ```http
 GET /stocks/alertas
@@ -494,7 +609,7 @@ La funcionalidad considera solamente productos activos.
 
 ## Lista de compras sugerida
 
-Permite consultar productos que requieren reposición considerando su stock actual y el stock mínimo configurado.
+Se agregó una funcionalidad para consultar productos que requieren reposición considerando su stock actual y el stock mínimo configurado.
 
 ```http
 GET /productos/lista-compras
@@ -504,7 +619,7 @@ La respuesta permite obtener una lista orientativa de productos que deberían se
 
 ---
 
-# ️ Versionamiento y Releases
+# Versionamiento y Releases
 
 Las versiones estables del proyecto se publican mediante **GitHub Releases**.
 
@@ -518,22 +633,21 @@ v1.0.0
 
 ```text
 feature/*
-  │
-  ▼
+    |
+    v
 develop
-  │
-  ▼
+    |
+    v
 Pull Request
-  │
-  ▼
+    |
+    v
 main
-  │
-  ▼
+    |
+    v
 v1.0.0
 ```
 
 ---
-
 
 # Requisitos previos
 
@@ -608,7 +722,7 @@ http://localhost:8000
 
 # Documentación de la API
 
-Una vez iniciada la aplicación:
+Una vez iniciada la aplicación, se puede acceder a la documentación interactiva.
 
 ### Swagger UI
 
@@ -628,16 +742,20 @@ http://localhost:8000/redoc
 
 | Componente | Estado |
 |---|---|
-| API REST | ✔ |
-| Autenticación | ✔ |
-| Gestión de productos | ✔ |
-| Gestión de stock | ✔ |
-| Movimientos de inventario | ✔ |
-| Alertas de stock bajo | ✔ |
-| Lista de compras sugerida | ✔ |
-| Pruebas automatizadas | ✔ |
-| GitHub Actions | ✔ |
-| Pull Requests | ✔ |
-| Release `v1.0.0` | ✔ |
+| API REST | ✅ |
+| Autenticación | ✅ |
+| Gestión de productos | ✅ |
+| Gestión de stock | ✅ |
+| Movimientos de inventario | ✅ |
+| Alertas de stock bajo | ✅ |
+| Lista de compras sugerida | ✅ |
+| Pruebas automatizadas | ✅ |
+| GitHub Actions | ✅ |
+| Pull Requests | ✅ |
+| Release `v1.0.0` | ✅ |
 
 ---
+
+## Licencia
+
+Este proyecto mantiene la licencia definida originalmente para la API.
