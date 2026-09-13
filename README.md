@@ -1,6 +1,6 @@
 # Despensa Inteligente API
 
-API REST para la gestión de productos, existencias y movimientos de inventario de una despensa doméstica.
+Es una API REST para la gestión de productos, existencias y movimientos de inventario de una despensa doméstica.
 
 El proyecto está desarrollado con **FastAPI** y **SQLAlchemy** e incorpora autenticación de usuarios, gestión de productos, control de stock, movimientos de inventario y funcionalidades de apoyo para productos con existencias bajas.
 
@@ -34,7 +34,7 @@ Además, esta entrega incorpora un flujo de trabajo basado en **Git**, integraci
 
 - Autenticación de usuarios mediante JWT.
 - Control de acceso mediante roles.
-- ️ Gestión de categorías.
+- ️Gestión de categorías.
 - Gestión de proveedores.
 - Gestión de ubicaciones.
 - Gestión de productos.
@@ -43,14 +43,14 @@ Además, esta entrega incorpora un flujo de trabajo basado en **Git**, integraci
 
 ### Funcionalidades agregadas en esta entrega
 
-- ️ Alertas de stock bajo.
+- ️Alertas de stock bajo.
 - Lista de compras sugerida.
 - Exclusión de productos inactivos de las alertas de stock.
 - Pruebas automatizadas.
-- ️ Integración continua con GitHub Actions.
+- ️Integración continua con GitHub Actions.
 - Flujo de trabajo basado en ramas.
 - Integración de cambios mediante Pull Requests.
-- ️ Versionamiento mediante GitHub Releases.
+- ️Versionamiento mediante GitHub Releases.
 
 ---
 
@@ -103,7 +103,7 @@ despensa-inteligente-api/
 
 # Flujo de trabajo Git
 
-El proyecto utiliza una estrategia de ramas para separar el desarrollo de nuevas funcionalidades, las correcciones y las versiones estables.
+En el proyecto se utiliza una estrategia de ramas para separar el desarrollo de nuevas funcionalidades, las correcciones y las versiones estables.
 
 ```text
 main
@@ -149,11 +149,11 @@ Contiene las versiones estables del proyecto.
 
 ### `develop`
 
-Es la rama utilizada para integrar y validar cambios antes de incorporarlos a la versión estable.
+Es la rama que utilicé para integrar y validar cambios antes de incorporarlos a la versión estable.
 
 ### `feature/*`
 
-Se utilizan para desarrollar nuevas funcionalidades de forma aislada.
+Fue utilizada para desarrollar nuevas funcionalidades de forma aislada.
 
 Ejemplos utilizados:
 
@@ -164,7 +164,7 @@ feature/lista-compras
 
 ### `hotfix/*`
 
-Se utilizan para desarrollar correcciones específicas.
+Fue utilizada para desarrollar correcciones específicas.
 
 Ejemplo utilizado:
 
@@ -233,7 +233,7 @@ Busca reducir la duración de las ramas y favorecer la integración frecuente.
 
 ## Estrategia utilizada
 
-Esta entrega utiliza una estructura basada en **Git Flow**, con `main` como rama estable, `develop` como rama de integración y ramas `feature/*` y `hotfix/*` para cambios específicos.
+Para esta entrega utilicé una estructura basada en **Git Flow**, con `main` como rama estable, `develop` como rama de integración y ramas `feature/*` y `hotfix/*` para cambios específicos.
 
 ---
 
@@ -245,13 +245,6 @@ Esta entrega utiliza una estructura basada en **Git Flow**, con `main` como rama
 | Integración | `develop` | `develop` |
 | Nueva funcionalidad | `feature/<nombre>` | `feature/lista-compras` |
 | Corrección | `hotfix/<nombre>` | `hotfix/corregir-alerta-stock` |
-
-### Recomendaciones
-
-- Utilizar nombres breves y descriptivos.
-- Utilizar minúsculas.
-- Separar palabras mediante guiones.
-- Evitar nombres genéricos.
 
 ---
 
@@ -358,7 +351,7 @@ Durante el desarrollo se utilizaron Pull Requests para integrar:
 
 # ️ Integración continua
 
-El proyecto utiliza **GitHub Actions** para ejecutar automáticamente las pruebas.
+En el proyecto utilizó **GitHub Actions** para ejecutar automáticamente las pruebas.
 
 El workflow se encuentra en:
 
@@ -449,13 +442,6 @@ Ejemplo para un entorno local:
 ```text
 DATABASE_URL=mysql+pymysql://usuario:contraseña@localhost/despensa
 ```
-
-### Buenas prácticas
-
-- No almacenar credenciales directamente en el código.
-- No publicar archivos `.env`.
-- Configurar las variables necesarias en cada entorno.
-- Utilizar una base de datos independiente para las pruebas automatizadas cuando corresponda.
 
 ---
 
@@ -576,7 +562,7 @@ cd despensa-inteligente-api
 
 ```bash
 python -m venv venv
-venv\Scriptsctivate
+venv\Scripts\activate
 ```
 
 ### Linux / macOS
@@ -642,20 +628,16 @@ http://localhost:8000/redoc
 
 | Componente | Estado |
 |---|---|
-| API REST | |
-| Autenticación | |
-| Gestión de productos | |
-| Gestión de stock | |
-| Movimientos de inventario | |
-| Alertas de stock bajo | |
-| Lista de compras sugerida | |
-| Pruebas automatizadas | |
-| GitHub Actions | |
-| Pull Requests | |
-| Release `v1.0.0` | |
+| API REST | ✔ |
+| Autenticación | ✔ |
+| Gestión de productos | ✔ |
+| Gestión de stock | ✔ |
+| Movimientos de inventario | ✔ |
+| Alertas de stock bajo | ✔ |
+| Lista de compras sugerida | ✔ |
+| Pruebas automatizadas | ✔ |
+| GitHub Actions | ✔ |
+| Pull Requests | ✔ |
+| Release `v1.0.0` | ✔ |
 
 ---
-
-## Licencia
-
-Este proyecto mantiene la licencia definida originalmente para la API.
