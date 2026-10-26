@@ -31,6 +31,7 @@ Además, esta entrega incorpora un flujo de trabajo basado en **Git**, integraci
 - [Instalación](#instalación)
 - [Documentación de la API](#documentación-de-la-api)
 - [Estado del proyecto](#estado-del-proyecto)
+- [Planificación de la Evaluación 2](#planificación-de-la-evaluación-2)
 
 ---
 
@@ -587,7 +588,7 @@ Las pruebas cubren:
 
 ### Estado actual
 
-> **49 pruebas automatizadas — 49 pruebas exitosas.**
+La E1 cerró con **49 pruebas automatizadas exitosas**. La corrección de migraciones de E2 incorpora pruebas adicionales de reconstrucción, conservación de datos y arranque; su ejecución se registra en la [auditoría de arranque](docs/devops/AUDITORIA_ARRANQUE.md).
 
 Las mismas pruebas se ejecutan automáticamente mediante GitHub Actions.
 
@@ -702,9 +703,13 @@ DATABASE_URL
 
 ## 5. Ejecutar las migraciones
 
+Para una base vacía, aplicar las migraciones antes de iniciar la API:
+
 ```bash
 alembic upgrade head
 ```
+
+La aplicación ya no crea tablas automáticamente al arrancar. Si la base contiene tablas creadas por una versión anterior, seguir primero el [procedimiento para bases existentes](docs/devops/AUDITORIA_ARRANQUE.md#bases-existentes-con-tablas-creadas-automáticamente); la nueva migración detecta ese caso y se detiene antes de crear tablas de inventario.
 
 ## 6. Iniciar la API
 
@@ -755,6 +760,12 @@ http://localhost:8000/redoc
 | Release `v1.0.0` | ✅ |
 
 ---
+
+## Planificación de la Evaluación 2
+
+La referencia de trabajo para la segunda entrega de Ingeniería DevOps está en la [guía maestra E2](docs/devops/GUIA_MAESTRA_E2_DOY0101.md). La [revisión inicial](docs/devops/REVISION_E2.md) contrasta esa guía con la pauta oficial y el repositorio, registra las pruebas ejecutadas y separa requisitos, recomendaciones y puntos por verificar.
+
+La [auditoría de arranque](docs/devops/AUDITORIA_ARRANQUE.md) documenta la corrección inicial de migraciones y los comandos para comprobarla con SQLite y MySQL temporales. Los componentes de Docker, seguridad, despliegue y orquestación pendientes se detallan en la revisión.
 
 ## Licencia
 
