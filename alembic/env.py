@@ -28,8 +28,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 # Importa el objeto Base de tu aplicación
 from config.database import Base
 
-# Importando modelos
-from models.user import User, TokenBlacklist
+# Cargar todos los modelos para comparar el esquema completo, sin importar app.
+import models  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

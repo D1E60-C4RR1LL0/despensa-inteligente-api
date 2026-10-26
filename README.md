@@ -1,148 +1,772 @@
-# Sistema de Gestión de Inventario API
+# Despensa Inteligente API
 
-Una API RESTful para gestionar inventario de productos, desarrollada con FastAPI y SQLAlchemy.
+API REST para la gestión de productos, existencias y movimientos de inventario de una despensa doméstica.
+
+El proyecto está desarrollado con **FastAPI** y **SQLAlchemy** e incorpora autenticación de usuarios, gestión de productos, control de stock, movimientos de inventario y funcionalidades de apoyo para productos con existencias bajas.
+
+Además, esta entrega incorpora un flujo de trabajo basado en **Git**, integración continua mediante **GitHub Actions**, pruebas automatizadas y control de versiones mediante **GitHub Releases**.
+
+---
+
+## Contenido
+
+- [Características](#características)
+- [Tecnologías](#tecnologías)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [Flujo de trabajo Git](#flujo-de-trabajo-git)
+- [Modelos de branching](#modelos-de-branching)
+- [Convenciones de ramas](#convenciones-de-ramas)
+- [Convenciones de commits](#convenciones-de-commits)
+- [Flujo colaborativo y trazabilidad](#flujo-colaborativo-y-trazabilidad)
+- [Pull Requests](#pull-requests)
+- [Estrategia de revisión](#estrategia-de-revisión)
+- [Flujo de merge](#flujo-de-merge)
+- [Flujo DevOps](#flujo-devops)
+- [Integración continua](#integración-continua)
+- [Configuración segura de base de datos](#configuración-segura-de-base-de-datos)
+- [Pruebas automatizadas](#pruebas-automatizadas)
+- [Funcionalidades agregadas](#funcionalidades-agregadas)
+- [Versionamiento y Releases](#versionamiento-y-releases)
+- [Requisitos previos](#requisitos-previos)
+- [Instalación](#instalación)
+- [Documentación de la API](#documentación-de-la-api)
+- [Estado del proyecto](#estado-del-proyecto)
+- [Planificación de la Evaluación 2](#planificación-de-la-evaluación-2)
+
+---
 
 ## Características
 
-- **Autenticación**: Registro, login y logout de usuarios con JWT
-- **Control de acceso**: Roles de usuario (admin, usuario normal)
-- **Gestión de productos**: CRUD completo de productos con categorías, proveedores y ubicaciones
-- **Gestión de inventario**: Control de stock y movimientos (entradas y salidas)
-- **Trazabilidad**: Seguimiento de movimientos con usuario, fecha y referencias
-- **API documentada**: Interfaz interactiva con Swagger UI
+### Gestión de la aplicación
 
-## Tecnologías utilizadas
+- Autenticación de usuarios mediante JWT.
+- Control de acceso mediante roles.
+- Gestión de categorías.
+- Gestión de proveedores.
+- Gestión de ubicaciones.
+- Gestión de productos.
+- Gestión de existencias.
+- Gestión de movimientos de inventario.
 
-- **FastAPI**: Framework web para creación de APIs
-- **SQLAlchemy**: ORM para interacción con la base de datos
-- **Pydantic**: Validación de datos y serialización
-- **JWT**: Autenticación basada en tokens
-- **Pytest**: Framework de pruebas
-- **Alembic**: Migraciones de base de datos
+### Funcionalidades agregadas en esta entrega
 
-## Requisitos
+- Alertas de stock bajo.
+- Lista de compras sugerida.
+- Exclusión de productos inactivos de las alertas de stock.
+- Pruebas automatizadas.
+- Integración continua con GitHub Actions.
+- Flujo de trabajo basado en ramas.
+- Integración de cambios mediante Pull Requests.
+- Versionamiento mediante GitHub Releases.
 
-- Python 3.8+
-- pip
+---
 
-## Instalación
+## Tecnologías
 
-1. Clona el repositorio
-```bash
-git clone https://github.com/oscar503sv/inventory-api.git
-cd inventory-api
+| Tecnología | Uso |
+|---|---|
+| **Python** | Lenguaje principal |
+| **FastAPI** | Framework para la API REST |
+| **SQLAlchemy** | ORM para interacción con la base de datos |
+| **Pydantic** | Validación y serialización de datos |
+| **MySQL** | Base de datos de la aplicación |
+| **Alembic** | Migraciones de base de datos |
+| **Pytest** | Pruebas automatizadas |
+| **Git** | Control de versiones |
+| **GitHub** | Repositorio y colaboración |
+| **GitHub Actions** | Integración continua |
+
+---
+
+## Estructura del proyecto
+
+```text
+despensa-inteligente-api/
+│
+├── .github/
+│   └── workflows/
+│       └── ci.yml
+│
+├── alembic/
+│   ├── versions/
+│   └── env.py
+│
+├── config/
+│   └── database.py
+│
+├── models/
+├── routes/
+├── schemas/
+├── tests/
+├── utils/
+│
+├── app.py
+├── alembic.ini
+├── requirements.txt
+└── README.md
 ```
 
-2. Crea y activa un entorno virtual
+---
+
+# Flujo de trabajo Git
+
+El repositorio cuenta con las ramas principales `main` y `develop`, además de ramas de trabajo `feature/*` y `hotfix/*`.
+
+La estructura utilizada es:
+
+```text
+main
+  │
+  └── develop
+        │
+        ├── feature/*
+        │
+        └── hotfix/*
+```
+
+### Flujo general
+
+```text
+┌─────────────────────────┐
+│       feature/*         │
+│   Nueva funcionalidad   │
+└────────────┬────────────┘
+             │
+             │ Pull Request
+             ▼
+┌─────────────────────────┐
+│        develop          │
+│ Rama de integración     │
+└────────────┬────────────┘
+             │
+             │ Pull Request
+             ▼
+┌─────────────────────────┐
+│          main           │
+│    Versión estable      │
+└────────────┬────────────┘
+             │
+             ▼
+        GitHub Release
+```
+
+## Ramas principales
+
+### `main`
+
+Contiene las versiones estables del proyecto.
+
+### `develop`
+
+Es la rama utilizada para integrar y validar cambios antes de incorporarlos a la versión estable.
+
+### `feature/*`
+
+Se utilizan para desarrollar nuevas funcionalidades de forma aislada.
+
+Ejemplos utilizados durante el proyecto:
+
+```text
+feature/alertas-stock-bajo
+feature/lista-compras
+```
+
+### `hotfix/*`
+
+Se utilizan para desarrollar correcciones específicas sobre funcionalidades existentes.
+
+Ejemplo utilizado durante el proyecto:
+
+```text
+hotfix/corregir-alerta-stock
+```
+
+---
+
+# Modelos de branching
+
+Existen diferentes estrategias para organizar el desarrollo mediante ramas.
+
+## Git Flow
+
+Git Flow utiliza ramas principales como `main` y `develop`, complementadas por ramas destinadas a funcionalidades, correcciones y versiones.
+
+```text
+main
+ │
+ └── develop
+      ├── feature/*
+      ├── release/*
+      └── hotfix/*
+```
+
+Permite separar el desarrollo de nuevas funcionalidades de las versiones estables.
+
+## GitHub Flow
+
+GitHub Flow utiliza una estructura más sencilla, generalmente basada en una rama principal y ramas temporales integradas mediante Pull Requests.
+
+```text
+main
+ │
+ ├── feature
+ │
+ └── Pull Request
+          │
+          ▼
+        merge
+```
+
+Es adecuado para equipos que buscan un flujo sencillo y entregas frecuentes.
+
+## Trunk-Based Development
+
+Trunk-Based Development concentra el desarrollo alrededor de una rama principal o *trunk*.
+
+```text
+main
+ ├── cambio pequeño
+ ├── cambio pequeño
+ ├── cambio pequeño
+ └── cambio pequeño
+```
+
+Busca reducir la duración de las ramas y favorecer la integración frecuente.
+
+### Comparación de modelos
+
+| Modelo | Característica principal | Ventaja | Contexto recomendado |
+|---|---|---|---|
+| Git Flow | Utiliza `main`, `develop`, `feature` y `hotfix` | Separa el desarrollo de las versiones estables | Proyectos con entregas planificadas |
+| GitHub Flow | Utiliza una rama principal y ramas temporales | Flujo simple y rápido | Equipos con entregas frecuentes |
+| Trunk-Based Development | Concentra la integración alrededor de una rama principal | Reduce la divergencia entre ramas | Equipos con integración continua y CI/CD maduro |
+
+## Estrategia utilizada
+
+Para esta entrega elegí **Git Flow** porque, al realizar el desarrollo de manera individual, me permite mantener separados los distintos cambios y trabajar cada funcionalidad de forma independiente. Además, como esta actividad exige demostrar un flujo de desarrollo mediante ramas, Pull Requests y merges, esta estrategia facilita representar y mantener ordenado el proceso. Finalmente, la separación entre `feature/*`, `develop` y `main` me permite mantener una trazabilidad clara de los cambios realizados y revisar posteriormente qué modificaciones corresponden a cada funcionalidad.
+
+---
+
+# Convenciones de ramas
+
+| Tipo | Formato | Ejemplo |
+|---|---|---|
+| Rama estable | `main` | `main` |
+| Integración | `develop` | `develop` |
+| Nueva funcionalidad | `feature/<nombre>` | `feature/lista-compras` |
+| Corrección | `hotfix/<nombre>` | `hotfix/corregir-alerta-stock` |
+
+### Convenciones utilizadas
+
+- Utilizar nombres breves y descriptivos.
+- Utilizar minúsculas.
+- Separar palabras mediante guiones.
+- Utilizar el prefijo correspondiente al tipo de trabajo.
+- Evitar nombres genéricos como `cambios`, `prueba` o `nueva-rama`.
+
+---
+
+# Convenciones de commits
+
+Los commits utilizan una estructura basada en tipos para identificar el propósito del cambio.
+
+| Tipo | Uso |
+|---|---|
+| `feat:` | Nueva funcionalidad |
+| `fix:` | Corrección de un problema |
+| `hotfix:` | Corrección urgente |
+| `ci:` | Cambios relacionados con integración continua |
+| `test:` | Incorporación o modificación de pruebas |
+| `docs:` | Cambios de documentación |
+| `chore:` | Mantenimiento o configuración |
+
+### Ejemplos utilizados durante el proyecto
+
+```text
+feat: agregar alertas de stock bajo
+feat: agregar lista de compras sugerida
+hotfix: excluir productos inactivos de alertas
+ci: configurar pipeline de pruebas
+ci: configurar base de datos para pruebas
+chore: configurar entorno seguro de base de datos
+```
+
+---
+
+# Flujo colaborativo y trazabilidad
+
+El desarrollo se realizó utilizando Git como sistema de control de versiones y GitHub como plataforma de colaboración.
+
+Aunque el desarrollo fue realizado individualmente, se utilizó el flujo de trabajo colaborativo solicitado para separar funcionalidades, correcciones, revisiones e integración.
+
+El flujo utilizado fue:
+
+1. Actualizar la rama `develop`.
+2. Crear una rama de funcionalidad o corrección.
+3. Realizar los cambios localmente.
+4. Ejecutar las pruebas.
+5. Registrar los cambios mediante `commit`.
+6. Enviar la rama al repositorio remoto mediante `push`.
+7. Crear un Pull Request hacia `develop`.
+8. Revisar y validar los cambios.
+9. Realizar el `merge`.
+10. Actualizar nuevamente la rama local mediante `pull`.
+11. Integrar `develop` en `main` mediante Pull Request.
+12. Crear la versión estable mediante GitHub Release.
+
+### Comandos principales
+
+```bash
+git clone <repositorio>
+
+git checkout develop
+git pull origin develop
+
+git checkout -b feature/<nombre>
+
+git add .
+git commit -m "feat: descripción del cambio"
+git push -u origin feature/<nombre>
+
+git checkout develop
+git pull origin develop
+
+git merge <rama>
+git push origin develop
+```
+
+La trazabilidad del código se mantiene mediante el historial de commits, las ramas, los Pull Requests, los merges y las releases registrados en GitHub.
+
+---
+
+# Pull Requests
+
+Los cambios desarrollados en ramas independientes se incorporan mediante **Pull Requests**.
+
+```text
+feature/*
+     │
+     ▼
+Pull Request
+     │
+     ▼
+ develop
+     │
+     ▼
+Pull Request
+     │
+     ▼
+  main
+```
+
+Durante el desarrollo se integraron los siguientes cambios:
+
+| Cambio | Rama de origen | Rama de destino |
+|---|---|---|
+| Alertas de stock bajo | `feature/alertas-stock-bajo` | `develop` |
+| Lista de compras sugerida | `feature/lista-compras` | `develop` |
+| Corrección de alertas | `hotfix/corregir-alerta-stock` | `develop` |
+| Integración final | `develop` | `main` |
+
+---
+
+# Estrategia de revisión
+
+Los cambios se integran mediante Pull Requests para mantener una revisión previa antes de incorporarlos a las ramas de integración o estable.
+
+La revisión considera:
+
+- Verificar que el cambio corresponda al objetivo de la rama.
+- Revisar los archivos modificados antes del merge.
+- Ejecutar las pruebas automatizadas.
+- Verificar que GitHub Actions finalice correctamente.
+- Revisar que no existan conflictos con la rama destino.
+- Integrar el Pull Request después de que las validaciones sean satisfactorias.
+
+En los Pull Requests hacia `main`, el resultado de GitHub Actions se utiliza como validación automática antes de realizar el merge.
+
+---
+
+# Flujo de merge
+
+Los cambios de las ramas `feature/*` y `hotfix/*` se integran mediante Pull Requests hacia `develop`.
+
+Una vez que los cambios se encuentran validados, `develop` se integra mediante un Pull Request hacia `main`.
+
+```text
+feature/*
+    │
+    │ Pull Request
+    ▼
+develop
+    │
+    │ Pull Request
+    ▼
+main
+```
+
+El merge se realiza después de revisar los cambios y verificar el resultado de las pruebas automatizadas.
+
+---
+
+# Flujo DevOps
+
+El proyecto implementa un flujo DevOps que integra control de versiones, colaboración, integración continua, pruebas automatizadas e incorporación de versiones estables.
+
+```text
+Desarrollo local
+      |
+      v
+     Git
+      |
+      v
+    GitHub
+      |
+      v
+ Pull Request
+      |
+      v
+GitHub Actions
+      |
+      v
+Instalación de dependencias
+      |
+      v
+Ejecución de pytest
+      |
+      v
+Validación automática
+      |
+      v
+    Merge
+      |
+      v
+  develop
+      |
+      v
+ Pull Request
+      |
+      v
+    main
+      |
+      v
+ GitHub Release
+```
+
+Este flujo permite detectar errores mediante validaciones automáticas antes de integrar cambios en las ramas principales y mantener una versión estable del proyecto.
+
+---
+
+# Integración continua
+
+El proyecto utiliza **GitHub Actions** para ejecutar automáticamente las pruebas.
+
+El workflow se encuentra en:
+
+```text
+.github/workflows/ci.yml
+```
+
+## Eventos que ejecutan el pipeline
+
+El workflow se ejecuta ante:
+
+```yaml
+on:
+  push:
+    branches:
+      - develop
+
+  pull_request:
+    branches:
+      - main
+```
+
+## Flujo del pipeline
+
+```text
+Cambio en el repositorio
+          |
+          v
+    GitHub Actions
+          |
+          v
+  Descargar repositorio
+          |
+          v
+   Configurar Python 3.12
+          |
+          v
+ Instalar dependencias
+          |
+          v
+Configurar entorno de pruebas
+          |
+          v
+       Ejecutar pytest
+          |
+          v
+   Resultado del pipeline
+```
+
+## Rol de GitHub Actions dentro de CI/CD
+
+GitHub Actions se utiliza en esta entrega como herramienta de **Integración Continua (CI)**.
+
+Cada cambio realizado sobre `develop` y cada Pull Request dirigido hacia `main` puede activar automáticamente el workflow.
+
+El pipeline permite:
+
+- Obtener la versión actual del código.
+- Configurar el entorno de Python.
+- Instalar las dependencias.
+- Configurar la variable de entorno necesaria para las pruebas.
+- Ejecutar la suite de pruebas automatizadas.
+- Informar el resultado del proceso.
+
+De esta manera, la validación del código no depende únicamente de una revisión manual antes de la integración.
+
+### CI y CD en este proyecto
+
+La implementación realizada se concentra principalmente en **Integración Continua (CI)**.
+
+La automatización valida los cambios mediante pruebas antes de su integración en las ramas principales.
+
+La publicación de la versión estable se realiza mediante GitHub Releases. En esta entrega no se implementa un despliegue automático hacia un entorno productivo, por lo que no se presenta como una implementación completa de Continuous Deployment (CD).
+
+---
+
+# Configuración segura de base de datos
+
+La conexión a la base de datos utiliza la variable de entorno:
+
+```text
+DATABASE_URL
+```
+
+La aplicación y Alembic obtienen la información de conexión desde esta variable.
+
+Ejemplo para un entorno local:
+
+```text
+DATABASE_URL=mysql+pymysql://usuario:contraseña@localhost/despensa
+```
+
+### Buenas prácticas
+
+- No almacenar credenciales directamente en el código.
+- No publicar archivos `.env`.
+- Configurar las variables necesarias en cada entorno.
+- Utilizar una base de datos independiente para las pruebas automatizadas cuando corresponda.
+
+---
+
+# Pruebas automatizadas
+
+El proyecto utiliza **Pytest** para realizar pruebas automatizadas.
+
+Para ejecutar las pruebas localmente:
+
+```bash
+pytest
+```
+
+Las pruebas cubren:
+
+- Autenticación.
+- Usuarios.
+- Categorías.
+- Productos.
+- Proveedores.
+- Ubicaciones.
+- Stock.
+- Movimientos de inventario.
+- Restricciones de modelos.
+- Autorización de endpoints.
+- Alertas de stock bajo.
+- Lista de compras sugerida.
+
+### Estado actual
+
+La E1 cerró con **49 pruebas automatizadas exitosas**. La corrección de migraciones de E2 incorpora pruebas adicionales de reconstrucción, conservación de datos y arranque; su ejecución se registra en la [auditoría de arranque](docs/devops/AUDITORIA_ARRANQUE.md).
+
+Las mismas pruebas se ejecutan automáticamente mediante GitHub Actions.
+
+---
+
+# Funcionalidades agregadas
+
+## Alertas de stock bajo
+
+Se agregó un endpoint para consultar productos cuyo stock actual se encuentra en o por debajo del stock mínimo configurado.
+
+```http
+GET /stocks/alertas
+```
+
+La funcionalidad considera solamente productos activos.
+
+---
+
+## Lista de compras sugerida
+
+Se agregó una funcionalidad para consultar productos que requieren reposición considerando su stock actual y el stock mínimo configurado.
+
+```http
+GET /productos/lista-compras
+```
+
+La respuesta permite obtener una lista orientativa de productos que deberían ser considerados para una próxima compra.
+
+---
+
+# Versionamiento y Releases
+
+Las versiones estables del proyecto se publican mediante **GitHub Releases**.
+
+La primera versión estable de esta entrega corresponde a:
+
+```text
+v1.0.0
+```
+
+### Flujo de versionamiento
+
+```text
+feature/*
+    |
+    v
+develop
+    |
+    v
+Pull Request
+    |
+    v
+main
+    |
+    v
+v1.0.0
+```
+
+---
+
+# Requisitos previos
+
+Antes de ejecutar el proyecto se requiere:
+
+- Python 3.12 o una versión compatible.
+- pip.
+- Git.
+- Un motor de base de datos configurado.
+- Una variable de entorno `DATABASE_URL`.
+
+---
+
+# Instalación
+
+## 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api.git
+cd despensa-inteligente-api
+```
+
+## 2. Crear el entorno virtual
+
+### Windows
+
 ```bash
 python -m venv venv
-# En Windows
 venv\Scripts\activate
-# En Linux/Mac
+```
+
+### Linux / macOS
+
+```bash
+python -m venv venv
 source venv/bin/activate
 ```
 
-3. Instala las dependencias
+## 3. Instalar dependencias
+
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Ejecuta las migraciones para crear la base de datos
+## 4. Configurar la base de datos
+
+Configurar la variable de entorno:
+
+```text
+DATABASE_URL
+```
+
+## 5. Ejecutar las migraciones
+
+Para una base vacía, aplicar las migraciones antes de iniciar la API:
+
 ```bash
 alembic upgrade head
 ```
 
-5. Inicia el servidor de desarrollo
+La aplicación ya no crea tablas automáticamente al arrancar. Si la base contiene tablas creadas por una versión anterior, seguir primero el [procedimiento para bases existentes](docs/devops/AUDITORIA_ARRANQUE.md#bases-existentes-con-tablas-creadas-automáticamente); la nueva migración detecta ese caso y se detiene antes de crear tablas de inventario.
+
+## 6. Iniciar la API
+
 ```bash
 fastapi dev app.py
 ```
 
-La API estará disponible en http://localhost:8000
+La API estará disponible en:
 
-## Documentación API
-
-Una vez que el servidor esté en funcionamiento, puedes acceder a la documentación interactiva de la API:
-
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
-
-## Estructura del proyecto
-
-```
-inventory-system-api/
-├── alembic/            # Configuración y migraciones de la base de datos
-├── app.py              # Punto de entrada de la aplicación
-├── config/             # Configuración (base de datos, etc.)
-├── models/             # Modelos SQLAlchemy
-├── routes/             # Rutas de la API organizadas por funcionalidad
-├── schemas/            # Esquemas Pydantic para validación
-├── utils/              # Utilidades (autenticación, etc.)
-└── tests/              # Pruebas unitarias e integración
+```text
+http://localhost:8000
 ```
 
-## Uso básico
+---
 
-### Autenticación
+# Documentación de la API
 
-```python
-# Registrar un nuevo usuario
-POST /signup
-{
-  "username": "usuario",
-  "email": "usuario@ejemplo.com",
-  "first_name": "Nombre",
-  "last_name": "Apellido",
-  "password": "contraseña",
-  "role": "user"
-}
+Una vez iniciada la aplicación, se puede acceder a la documentación interactiva.
 
-# Iniciar sesión
-POST /login
-{
-  "username": "usuario",
-  "password": "contraseña"
-}
+### Swagger UI
 
-# Respuesta
-{
-  "access_token": "token...",
-  "token_type": "bearer"
-}
+```text
+http://localhost:8000/docs
 ```
 
-### Ejemplo de movimiento de inventario
+### ReDoc
 
-```python
-# Crear un movimiento de entrada
-POST /movimientos/
-{
-  "cantidad": 50.0,
-  "referencia": "REF-001",
-  "observaciones": "Compra inicial",
-  "tipo_movimiento_id": 1,  # Tipo entrada
-  "producto_id": 1,
-  "ubicacion_destino_id": 1
-}
+```text
+http://localhost:8000/redoc
 ```
 
-## Pruebas
+---
 
-Para ejecutar las pruebas:
+# Estado del proyecto
 
-```bash
-python -m pytest
-```
+| Componente | Estado |
+|---|---|
+| API REST | ✅ |
+| Autenticación | ✅ |
+| Gestión de productos | ✅ |
+| Gestión de stock | ✅ |
+| Movimientos de inventario | ✅ |
+| Alertas de stock bajo | ✅ |
+| Lista de compras sugerida | ✅ |
+| Pruebas automatizadas | ✅ |
+| GitHub Actions | ✅ |
+| Pull Requests | ✅ |
+| Release `v1.0.0` | ✅ |
 
-Para obtener un informe de cobertura:
+---
 
-```bash
-python -m pytest --cov=.
-```
+## Planificación de la Evaluación 2
 
-## Estado del proyecto
+La referencia de trabajo para la segunda entrega de Ingeniería DevOps está en la [guía maestra E2](docs/devops/GUIA_MAESTRA_E2_DOY0101.md). La [revisión inicial](docs/devops/REVISION_E2.md) contrasta esa guía con la pauta oficial y el repositorio, registra las pruebas ejecutadas y separa requisitos, recomendaciones y puntos por verificar.
 
-Este proyecto está activamente mantenido. Las nuevas características, correcciones de errores y mejoras son bienvenidas a través de issues y pull requests.
+La [auditoría de arranque](docs/devops/AUDITORIA_ARRANQUE.md) documenta la corrección inicial de migraciones y los comandos para comprobarla con SQLite y MySQL temporales. Los componentes de Docker, seguridad, despliegue y orquestación pendientes se detallan en la revisión.
 
 ## Licencia
 
-Este proyecto está bajo la licencia GNU General Public License. Consulta el archivo [LICENSE](LICENSE) para más detalles. 
+Este proyecto mantiene la licencia definida originalmente para la API.
