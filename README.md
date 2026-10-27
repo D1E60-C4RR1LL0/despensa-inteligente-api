@@ -29,6 +29,7 @@ Además, esta entrega incorpora un flujo de trabajo basado en **Git**, integraci
 - [Versionamiento y Releases](#versionamiento-y-releases)
 - [Requisitos previos](#requisitos-previos)
 - [Instalación](#instalación)
+- [Ejecución con Docker](#ejecución-con-docker)
 - [Documentación de la API](#documentación-de-la-api)
 - [Estado del proyecto](#estado-del-proyecto)
 - [Planificación de la Evaluación 2](#planificación-de-la-evaluación-2)
@@ -75,6 +76,7 @@ Además, esta entrega incorpora un flujo de trabajo basado en **Git**, integraci
 | **Git** | Control de versiones |
 | **GitHub** | Repositorio y colaboración |
 | **GitHub Actions** | Integración continua |
+| **Docker** | Imagen de la API y ejecución en contenedores |
 
 ---
 
@@ -103,6 +105,9 @@ despensa-inteligente-api/
 ├── app.py
 ├── alembic.ini
 ├── requirements.txt
+├── requirements-dev.txt
+├── Dockerfile
+├── .dockerignore
 └── README.md
 ```
 
@@ -459,7 +464,7 @@ Este flujo permite detectar errores mediante validaciones automáticas antes de 
 
 # Integración continua
 
-El proyecto utiliza **GitHub Actions** para ejecutar automáticamente las pruebas.
+El proyecto utiliza **GitHub Actions** para ejecutar las pruebas y construir la imagen Docker si las pruebas pasan.
 
 El workflow se encuentra en:
 
@@ -479,6 +484,7 @@ on:
 
   pull_request:
     branches:
+      - develop
       - main
 ```
 
@@ -506,6 +512,9 @@ Configurar entorno de pruebas
        Ejecutar pytest
           |
           v
+    Construir imagen Docker
+          |
+          v
    Resultado del pipeline
 ```
 
@@ -513,7 +522,7 @@ Configurar entorno de pruebas
 
 GitHub Actions se utiliza en esta entrega como herramienta de **Integración Continua (CI)**.
 
-Cada cambio realizado sobre `develop` y cada Pull Request dirigido hacia `main` puede activar automáticamente el workflow.
+Cada push sobre `develop` y cada Pull Request dirigido hacia `develop` o `main` activa el workflow.
 
 El pipeline permite:
 
@@ -522,9 +531,12 @@ El pipeline permite:
 - Instalar las dependencias.
 - Configurar la variable de entorno necesaria para las pruebas.
 - Ejecutar la suite de pruebas automatizadas.
+- Construir la imagen con la etiqueta `inventory-api:<SHA de la ejecución>`, mediante un job que depende de las pruebas.
 - Informar el resultado del proceso.
 
 De esta manera, la validación del código no depende únicamente de una revisión manual antes de la integración.
+
+El job `pruebas` instala `requirements-dev.txt`; el job `imagen` construye el Dockerfile con permisos `contents: read`. La imagen se construye en el runner; todavía no se publica en un registry ni se despliega. La nueva configuración Docker queda pendiente de su primera ejecución remota al subir esta rama y abrir el PR.
 
 ### CI y CD en este proyecto
 
@@ -551,6 +563,14 @@ Ejemplo para un entorno local:
 ```text
 DATABASE_URL=mysql+pymysql://usuario:contraseña@localhost/despensa
 ```
+
+La firma JWT utiliza además `JWT_SECRET_KEY`, obligatoria para ejecutar la API. Puede definirse en el entorno o en el `.env` local. `.env.example` documenta las variables sin incluir una clave real. Para generar una clave nueva para la sesión en PowerShell:
+
+```powershell
+$env:JWT_SECRET_KEY = python -c "import secrets; print(secrets.token_urlsafe(32))"
+```
+
+Para conservar la misma clave entre sesiones, guardarla en el `.env` local sin versionarla. Cambiar la clave invalida los tokens anteriores. Las pruebas y auditorías generan su propia clave efímera.
 
 ### Buenas prácticas
 
@@ -588,7 +608,7 @@ Las pruebas cubren:
 
 ### Estado actual
 
-La E1 cerró con **49 pruebas automatizadas exitosas**. La corrección de migraciones de E2 incorpora pruebas adicionales de reconstrucción, conservación de datos y arranque; su ejecución se registra en la [auditoría de arranque](docs/devops/AUDITORIA_ARRANQUE.md).
+La E1 cerró con **49 pruebas automatizadas exitosas**. Tras las pruebas de migraciones y configuración JWT, la suite local tiene **57 pruebas aprobadas**. Las evidencias están en la [auditoría de arranque](docs/devops/AUDITORIA_ARRANQUE.md) y la [auditoría Docker](docs/devops/AUDITORIA_DOCKER.md).
 
 Las mismas pruebas se ejecutan automáticamente mediante GitHub Actions.
 
@@ -690,16 +710,21 @@ source venv/bin/activate
 ## 3. Instalar dependencias
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 ```
+
+`requirements-dev.txt` incluye las dependencias de ejecución y las de pruebas. Para un entorno que solo ejecuta la API, instalar `requirements.txt`.
 
 ## 4. Configurar la base de datos
 
-Configurar la variable de entorno:
+Configurar las variables de entorno:
 
 ```text
 DATABASE_URL
+JWT_SECRET_KEY
 ```
+
+Usar `.env.example` como referencia para completar el `.env` local, conservando la configuración existente. `JWT_SECRET_KEY` debe tener una clave propia; el ejemplo la deja vacía para exigir su configuración.
 
 ## 5. Ejecutar las migraciones
 
@@ -722,6 +747,41 @@ La API estará disponible en:
 ```text
 http://localhost:8000
 ```
+
+---
+
+# Ejecución con Docker
+
+Construir la imagen desde la raíz:
+
+```powershell
+docker build --tag inventory-api:e2-docker .
+```
+
+La imagen usa Python 3.12, ejecuta Uvicorn en `0.0.0.0:8000` como usuario `app` y recibe `DATABASE_URL` y `JWT_SECRET_KEY` en tiempo de ejecución. Incluye Alembic, pero las migraciones se ejecutan explícitamente antes de arrancar el servidor. `.dockerignore` limita el contexto a los archivos necesarios y excluye `.env`, Git, entornos virtuales, pruebas y bases locales.
+
+Para una comprobación completa y desechable con MySQL, incluido el arranque real del servidor y peticiones HTTP:
+
+```powershell
+docker pull mysql:8.4
+python scripts/audit_docker.py
+```
+
+El script crea un MySQL temporal, aplica las migraciones desde la imagen y arranca la API con un puerto aleatorio local. Comprueba registro, login, consultas de inventario, healthcheck y exclusiones de archivos. Elimina sus contenedores y su red al terminar. No utiliza el MySQL ni el `.env` del usuario.
+
+Para levantar una demostración manual con SQLite en un volumen Docker independiente:
+
+```powershell
+$env:DATABASE_URL = "sqlite:////data/demo.db"
+$env:JWT_SECRET_KEY = python -c "import secrets; print(secrets.token_urlsafe(32))"
+docker volume create inventory-e2-demo
+docker run --rm --env DATABASE_URL --env JWT_SECRET_KEY --mount type=volume,source=inventory-e2-demo,target=/data inventory-api:e2-docker python -m alembic upgrade head
+docker run --rm --publish 127.0.0.1:8000:8000 --env DATABASE_URL --env JWT_SECRET_KEY --mount type=volume,source=inventory-e2-demo,target=/data inventory-api:e2-docker
+```
+
+La demostración queda disponible en `http://localhost:8000/docs`. `Ctrl+C` detiene el servidor; el volumen conserva sus datos. Las variables anteriores afectan esa sesión de PowerShell y seleccionan SQLite para la demostración. El healthcheck consulta `/openapi.json`: acredita respuesta HTTP, mientras que la auditoría comprueba también operaciones con base de datos.
+
+Para conectar la imagen a MySQL, proporcionar una URL válida desde el contenedor: `localhost` dentro del contenedor identifica al propio contenedor. En Docker Desktop, una base del host puede requerir `host.docker.internal`; entre contenedores se usa su nombre de servicio o alias de red. La configuración definitiva de Compose sigue pendiente. Ver decisiones, resultados y límites en [AUDITORIA_DOCKER.md](docs/devops/AUDITORIA_DOCKER.md).
 
 ---
 
@@ -758,6 +818,8 @@ http://localhost:8000/redoc
 | GitHub Actions | ✅ |
 | Pull Requests | ✅ |
 | Release `v1.0.0` | ✅ |
+| Imagen Docker de la API | ✅ Validada localmente con MySQL temporal |
+| Construcción Docker en CI | Configurada; primera ejecución remota pendiente |
 
 ---
 
@@ -765,7 +827,7 @@ http://localhost:8000/redoc
 
 La referencia de trabajo para la segunda entrega de Ingeniería DevOps está en la [guía maestra E2](docs/devops/GUIA_MAESTRA_E2_DOY0101.md). La [revisión inicial](docs/devops/REVISION_E2.md) contrasta esa guía con la pauta oficial y el repositorio, registra las pruebas ejecutadas y separa requisitos, recomendaciones y puntos por verificar.
 
-La [auditoría de arranque](docs/devops/AUDITORIA_ARRANQUE.md) documenta la corrección inicial de migraciones y los comandos para comprobarla con SQLite y MySQL temporales. Los componentes de Docker, seguridad, despliegue y orquestación pendientes se detallan en la revisión.
+La [auditoría de arranque](docs/devops/AUDITORIA_ARRANQUE.md) documenta la corrección inicial de migraciones. La [auditoría Docker](docs/devops/AUDITORIA_DOCKER.md) registra la contenerización y su validación local. La ejecución remota del nuevo job Docker, los análisis de seguridad, el despliegue y Compose siguen pendientes.
 
 ## Licencia
 

@@ -6,8 +6,12 @@ from fastapi.testclient import TestClient
 import jwt
 from datetime import datetime, timedelta
 import os
+import secrets
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# La suite usa su propio secreto efimero, independiente de la configuracion local.
+os.environ["JWT_SECRET_KEY"] = secrets.token_urlsafe(32)
 
 from app import app
 from config.database import Base, get_db
@@ -262,4 +266,4 @@ def test_stock(db_session, test_producto, test_ubicacion):
     db_session.add(stock)
     db_session.commit()
     db_session.refresh(stock)
-    return stock 
+    return stock

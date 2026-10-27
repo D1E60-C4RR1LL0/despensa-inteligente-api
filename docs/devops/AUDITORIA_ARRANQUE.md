@@ -12,6 +12,8 @@ Se trabajó en la rama local `feature/e2-migraciones-arranque`, creada desde la 
 
 ## Repetir la auditoría
 
+Actualización del bloque Docker: la auditoría genera también una clave JWT efímera y las pruebas se instalan ahora con `requirements-dev.txt`. La API requiere `JWT_SECRET_KEY` fuera de las pruebas. Ver [AUDITORIA_DOCKER.md](AUDITORIA_DOCKER.md) para la configuración y el resultado local de 57 pruebas. El [CI del merge de migraciones](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40403273828) se verificó posteriormente con resultado exitoso; no incluye el nuevo build Docker.
+
 Desde la raíz, con las dependencias de `requirements.txt` instaladas:
 
 ```powershell

@@ -12,6 +12,8 @@ Para determinar requisitos académicos, prevalece la pauta oficial `EP2_DOY0101_
 
 Distinguir requisitos de la pauta, contenidos de clase, recomendaciones y puntos por verificar. En particular, no convertir ejemplos de cobertura, herramientas adicionales o pruebas negativas en requisitos obligatorios. Si falta una fuente, señalar la limitación y avanzar con las tareas que no dependan de esa incertidumbre.
 
+Prioridad académica reafirmada por el usuario: mantener el desarrollo en la línea de los contenidos del ramo. Antes de cada bloque, relacionar los cambios con la pauta y las clases pertinentes, indicando archivo y página cuando estén disponibles. Las adaptaciones necesarias para Python/FastAPI y las mejoras complementarias deben identificarse expresamente como decisiones del proyecto, no como contenidos confirmados de clase ni exigencias docentes. Preferir la implementación más simple que permita cumplir y demostrar los indicadores, y limitar los complementos a necesidades concretas del proyecto.
+
 Conservar las funcionalidades, pruebas, migraciones y estrategia de ramas existentes salvo que la tarea justifique cambiarlas. No incluir secretos en archivos versionados ni en la imagen. No afirmar resultados locales, de GitHub Actions, de seguridad o de despliegue sin evidencia, y distinguir siempre configuración existente de ejecución verificada.
 
 La pauta contiene restricciones académicas sobre el uso de IA, detalladas en la revisión. No presentar contenido generado por IA como análisis, justificación técnica, conclusión o reflexión personal del equipo. Registrar el uso de IA y mantener los documentos de asistencia separados de esos entregables.
