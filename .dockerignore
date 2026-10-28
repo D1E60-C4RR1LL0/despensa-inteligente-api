@@ -1,0 +1,26 @@
+# El contexto solo incluye los archivos necesarios para ejecutar y migrar la API.
+**
+!requirements.txt
+!app.py
+!alembic.ini
+!alembic/
+!alembic/**
+!config/
+!config/**
+!models/
+!models/**
+!routes/
+!routes/**
+!schemas/
+!schemas/**
+!utils/
+!utils/**
+
+# Excluir tambien estos archivos si aparecen dentro de un directorio permitido.
+**/__pycache__
+**/*.py[cod]
+**/.env*
+**/*.db
+**/*.sqlite*
+**/*.pem
+**/*.key

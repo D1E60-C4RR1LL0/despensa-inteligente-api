@@ -17,6 +17,8 @@ Los PDF siguen fuera del repositorio. Si cambian de ubicación, habrá que local
 
 ## Requisitos confirmados con la pauta
 
+Actualización posterior a esta revisión inicial: consultar [AUDITORIA_DOCKER.md](AUDITORIA_DOCKER.md) para el Dockerfile, la exclusión de archivos locales, la configuración JWT por entorno y el build incorporado al workflow. La tabla siguiente conserva el estado inicial de E1; no representa el estado actual de esta rama.
+
 Cada indicador vale 20% de la E2. La evaluación completa tiene una ponderación de 45% en la asignatura, según la primera página de la pauta.
 
 | Indicador | Exigencia confirmada | Estado local observado | Trabajo pendiente |
@@ -105,11 +107,13 @@ La documentación y las evidencias deben actualizarse durante cada etapa. Crear 
 
 ## Integridad de las fuentes iniciales
 
-SHA-256 del Markdown original y de su copia en este directorio:
+SHA-256 del Markdown original y de la copia inicial antes de incorporarla a Git:
 
 ```text
 8674068E118A92623D1BF9A8DC5E93A5863A3D1B0BD037ADFA8BA4E442F4F8D1
 ```
+
+Git puede normalizar los finales de línea al hacer checkout en Windows y cambiar ese hash de bytes. Tras el checkout de la rama Docker se comprobó que el contenido textual sigue siendo idéntico al original al normalizar LF/CRLF, y que la guía no tiene modificaciones en el diff.
 
 SHA-256 de la pauta oficial consultada:
 

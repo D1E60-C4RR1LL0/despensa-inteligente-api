@@ -19,6 +19,7 @@ def audit_database(database_url, label):
     root = Path(__file__).resolve().parents[1]
     sys.path.insert(0, str(root))
     os.environ["DATABASE_URL"] = database_url
+    os.environ["JWT_SECRET_KEY"] = secrets.token_urlsafe(32)
 
     def migrate(*args):
         result = subprocess.run(
