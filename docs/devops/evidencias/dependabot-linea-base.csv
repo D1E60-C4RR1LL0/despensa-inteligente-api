@@ -3,7 +3,7 @@ alerta,paquete,severidad,CVE,GHSA,version_inicial,rango_afectado,primera_version
 2,python-multipart,high,CVE-2024-53981,GHSA-59g5-xgcq-4qw3,0.0.9,< 0.0.18,0.0.18,0.0.31,https://github.com/advisories/GHSA-59g5-xgcq-4qw3
 3,jinja2,medium,CVE-2024-56326,GHSA-q2x7-8rv6-6q7h,3.1.4,<= 3.1.4,3.1.5,3.1.6,https://github.com/advisories/GHSA-q2x7-8rv6-6q7h
 4,jinja2,medium,CVE-2024-56201,GHSA-gmj6-6f8f-6699,3.1.4,">= 3.0.0, <= 3.1.4",3.1.5,3.1.6,https://github.com/advisories/GHSA-gmj6-6f8f-6699
-5,certifi,low,CVE-2024-39689,GHSA-248v-346w-9cwc,2024.6.2,">= 2021.5.30, < 2024.7.4",2024.7.4,2026.10.18,https://github.com/advisories/GHSA-248v-346w-9cwc
+5,certifi,low,CVE-2024-39689,GHSA-248v-346w-9cwc,2024.6.2,">= 2021.5.30, < 2024.7.4",2024.7.4,2026.10.19,https://github.com/advisories/GHSA-248v-346w-9cwc
 6,jinja2,medium,CVE-2025-27516,GHSA-cpwx-vrp4-4pq7,3.1.4,<= 3.1.5,3.1.6,3.1.6,https://github.com/advisories/GHSA-cpwx-vrp4-4pq7
 7,h11,critical,CVE-2025-43859,GHSA-vqfr-h8mv-ghfj,0.14.0,< 0.16.0,0.16.0,0.16.0,https://github.com/advisories/GHSA-vqfr-h8mv-ghfj
 8,starlette,medium,CVE-2025-54121,GHSA-2c2j-9gv5-cj73,0.37.2,< 0.47.2,0.47.2,1.3.1,https://github.com/advisories/GHSA-2c2j-9gv5-cj73
@@ -47,5 +47,5 @@ alerta,paquete,severidad,CVE,GHSA,version_inicial,rango_afectado,primera_version
 46,mako,medium,CVE-2026-102991,GHSA-5639-2j2p-m4mx,1.3.5,<= 1.4.1,1.4.2,1.4.2,https://github.com/advisories/GHSA-5639-2j2p-m4mx
 47,pyjwt,medium,CVE-2026-102275,GHSA-x33g-cr3x-6449,2.8.0,">= 2.1.0, <= 2.14.0",2.15.0,2.15.0,https://github.com/advisories/GHSA-x33g-cr3x-6449
 48,pyjwt,high,,GHSA-pxh4-856f-4h89,2.8.0,<= 2.13.0,2.14.0,2.15.0,https://github.com/advisories/GHSA-pxh4-856f-4h89
-49,certifi,critical,,GHSA-6q48-6c7w-9gw2,2024.6.2,">= 2019.03.09, < 2026.10.18",2026.10.18,2026.10.18,https://github.com/advisories/GHSA-6q48-6c7w-9gw2
+49,certifi,critical,,GHSA-6q48-6c7w-9gw2,2024.6.2,">= 2019.03.09, < 2026.10.18",2026.10.18,2026.10.19,https://github.com/advisories/GHSA-6q48-6c7w-9gw2
 50,dnspython,high,CVE-2026-114605,GHSA-45c3-73f7-pv4m,2.6.1,< 2.9.0,2.9.0,2.9.0,https://github.com/advisories/GHSA-45c3-73f7-pv4m

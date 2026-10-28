@@ -545,7 +545,7 @@ El pipeline permite:
 
 De esta manera, la validación del código no depende únicamente de una revisión manual antes de la integración.
 
-El job `pruebas` instala `requirements-dev.txt`; `seguridad` ejecuta Snyk Code y el análisis de dependencias. El job `imagen` espera que ambos aprueben, construye el Dockerfile y ejecuta `scripts/audit_compose.py --image inventory-api:${{ github.sha }}` con permisos `contents: read`. La auditoría utiliza esa imagen sin reconstruirla y comprueba su identificador en los contenedores de API y migraciones. Docker y Compose ya pasaron en GitHub Actions en los bloques anteriores; el nuevo análisis Snyk está pendiente de validación remota. La imagen no se publica todavía en un registry y el stack de auditoría se elimina al terminar: es una prueba de integración, no un entorno desplegado permanente.
+El job `pruebas` instala `requirements-dev.txt`; `seguridad` ejecuta Snyk Code y el análisis de dependencias. El job `imagen` espera que ambos aprueben, construye el Dockerfile y ejecuta `scripts/audit_compose.py --image inventory-api:${{ github.sha }}` con permisos `contents: read`. La auditoría utiliza esa imagen sin reconstruirla y comprueba su identificador en los contenedores de API y migraciones. Docker y Compose ya pasaron en GitHub Actions en los bloques anteriores. El primer CI con Snyk detectó una incidencia crítica de certifi y bloqueó la imagen; se corrigió la versión y falta confirmar el nuevo CI. La imagen no se publica todavía en un registry y el stack de auditoría se elimina al terminar: es una prueba de integración, no un entorno desplegado permanente.
 
 ### CI y CD en este proyecto
 
@@ -840,7 +840,7 @@ Dependabot tiene alertas y actualizaciones de seguridad activadas en GitHub. `.g
 
 El job `seguridad` ejecuta `snyk code test` y `snyk test` con umbral `high`. `imagen` depende de `pruebas` y `seguridad`: un análisis fallido o no ejecutable bloquea la construcción y la auditoría Compose. La configuración requiere `SNYK_TOKEN` en los secretos de **Actions y Dependabot**, y `SNYK_ORG` como variable no secreta del repositorio. No guardar el token en archivos ni compartirlo en el chat.
 
-Se conserva la evidencia JSON de Snyk cuando se genera. El análisis real y su resultado deben verificarse en CI; configurar el workflow no acredita por sí solo que el proyecto esté libre de vulnerabilidades. La [auditoría de seguridad](docs/devops/AUDITORIA_SEGURIDAD.md) registra la línea base de 50 alertas, las versiones propuestas, la política y el estado de las comprobaciones.
+Se solicita salida JSON de Snyk y se conserva como artefacto. El [primer CI de seguridad](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40628001505) verificó la autenticación, aprobó Snyk Code con el umbral elegido y bloqueó la imagen por un hallazgo crítico de certifi. Se actualizó a la versión corregida; la [auditoría de seguridad](docs/devops/AUDITORIA_SEGURIDAD.md) registra esa evidencia, la línea base de 50 alertas, la política y el estado de la repetición. Un análisis con umbral `high` no informa sobre todas las severidades.
 
 El registro público acepta únicamente el rol `user`, que también es el valor predeterminado. Intentar crear un administrador mediante `/signup` devuelve HTTP 422. Las cuentas administrativas existentes conservan sus permisos.
 

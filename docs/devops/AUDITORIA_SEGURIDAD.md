@@ -39,7 +39,7 @@ Ejemplos de los hallazgos críticos de la línea base:
 | h11 | [CVE-2025-43859 / GHSA-vqfr-h8mv-ghfj](https://github.com/advisories/GHSA-vqfr-h8mv-ghfj) | 0.14.0 → 0.16.0 |
 | AnyIO | [CVE-2026-63374 / GHSA-82r6-8w77-94w6](https://github.com/advisories/GHSA-82r6-8w77-94w6) | 4.4.0 → 4.14.2 |
 | PyJWT | [CVE-2026-102268 / GHSA-ffc3-869f-jxw9](https://github.com/advisories/GHSA-ffc3-869f-jxw9) | 2.8.0 → 2.15.0 |
-| certifi | [GHSA-6q48-6c7w-9gw2](https://github.com/advisories/GHSA-6q48-6c7w-9gw2), sin CVE informado en la consulta | 2024.6.2 → 2026.10.18 |
+| certifi | [GHSA-6q48-6c7w-9gw2](https://github.com/advisories/GHSA-6q48-6c7w-9gw2), sin CVE informado en la consulta | 2024.6.2 → 2026.10.19 |
 
 Una comparación local con `packaging.SpecifierSet` confirmó que las versiones propuestas quedan fuera de los rangos afectados de las 50 alertas iniciales. Esto no equivale a un análisis actualizado de todas las dependencias, ni a cierre remoto de las alertas; Snyk y Dependabot deben aportar esa evidencia adicional.
 
@@ -58,13 +58,14 @@ Se añadieron dos pruebas para estos comportamientos. Es una corrección del có
 Los comandos fijados son:
 
 ```bash
-snyk code test --severity-threshold=high --json-file-output=.security-reports/snyk-code.json
-snyk test --file=requirements-dev.txt --package-manager=pip --command=python --severity-threshold=high --json-file-output=.security-reports/snyk-dependencies.json
+set -o pipefail
+snyk code test --severity-threshold=high --json | tee .security-reports/snyk-code.json
+snyk test --file=requirements-dev.txt --package-manager=pip --command=python --severity-threshold=high --json | tee .security-reports/snyk-dependencies.json
 ```
 
 El job `imagen` depende de `pruebas` y `seguridad`. No hay `continue-on-error` en los análisis. Un hallazgo sobre el umbral, autenticación inválida, falta de token u otro error del analizador impide construir y ejecutar la auditoría de contenedores. Un error de análisis no se registra como ausencia de vulnerabilidades.
 
-Los JSON se conservan como artefactos cuando se generan, incluso tras un fallo, durante 14 días. Snyk Code puede no generar JSON si no encuentra incidencias; la ausencia del archivo por sí sola no acredita un análisis correcto: debe comprobarse el código de salida y el log del paso.
+Los resultados se solicitan mediante `--json` y se capturan con `tee` para conservarlos como artefactos, incluso tras un fallo, durante 14 días. `pipefail` conserva el fallo de Snyk aunque `tee` termine correctamente. La ausencia de resultados o un archivo vacío no acredita un análisis correcto: deben comprobarse el código de salida y el contenido. En la primera ejecución, `--json-file-output` no produjo los archivos esperados; por eso se sustituyó por esta captura explícita.
 
 Las acciones oficiales se fijaron por SHA y se actualizaron a versiones verificadas con Node 24 para resolver las advertencias observadas en los CI anteriores. Snyk CLI se fija en v1.1308.3 mediante la acción oficial de setup. El token solo se inyecta en el guard de configuración y los pasos de análisis; no en pip ni en la construcción Docker.
 
@@ -76,13 +77,21 @@ El usuario creó una cuenta Snyk y habilitó Snyk Code. Se comprobaron los nombr
 
 Los PR de Dependabot utilizan su almacén de secretos, por eso ambos deben contener el mismo token. El valor no se escribe en el repositorio, en `.env` ni en el chat. Las renovaciones deben actualizar ambos almacenes antes de la caducidad del PAT. La cuenta Free tiene límites de pruebas: consultar el [plan vigente de Snyk](https://snyk.io/plans/).
 
+## Primera ejecución real y bloqueo verificado
+
+Se abrió el [PR #12 en borrador](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/pull/12). En la [primera ejecución de CI](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40628001505), sobre `bbd3ed86be9827641fec3ff4925517a41fbdf923`, la cuenta y organización funcionaron, las pruebas aprobaron y Snyk Code terminó con 0 incidencias sobre el umbral configurado. Esto no informa el total de incidencias de severidad inferior.
+
+La SCA analizó 52 dependencias y encontró una incidencia crítica en cuatro rutas: [SNYK-PYTHON-CERTIFI-21280764](https://security.snyk.io/vuln/SNYK-PYTHON-CERTIFI-21280764), que afecta también a la propuesta inicial `certifi==2026.10.18`. Snyk terminó con código 1 y `imagen` quedó omitida. Esta ejecución demuestra el bloqueo ante un hallazgo real, sin introducir código vulnerable artificialmente ni confundir un error de autenticación con una vulnerabilidad.
+
+Se ajustó certifi a `2026.10.19`, versión corregida indicada por Snyk y verificada en PyPI. Este hallazgo adicional ilustra por qué comparar con los 50 rangos iniciales no sustituía el escaneo actualizado. La siguiente ejecución debe confirmar la corrección y conservar los JSON.
+
 ## Evidencia y trabajo pendiente
 
 - Instalación de las dependencias propuestas: correcta.
 - Comparación contra los rangos de las 50 alertas iniciales: ninguna versión propuesta dentro de esos rangos.
-- Suite local: **61 passed, 4 warnings in 31.49s**.
+- Suite local tras la corrección final de certifi: **61 passed, 4 warnings in 32.23s**. `pip check`: sin incompatibilidades.
 - Corrección de roles: prueba negativa fallida antes del cambio y aprobada después.
-- Imagen con dependencias y roles corregidos: construida correctamente, identificador `sha256:0892287e78c69b36b7c72da47dba2fef2bbda3a0f368ecc4c8cea7da1ee0e595`. La auditoría Compose terminó con código 0: imagen solicitada utilizada, arranque/API correctos, esquema de 9 tablas sin diferencias, persistencia tras recrear contenedores y bloqueo ante migración fallida. Sus recursos temporales se eliminaron.
-- Análisis real de Snyk, prueba de su bloqueo y CI de esta rama: pendientes hasta ejecutar el PR. No se declara IE3 completo mientras falte esa evidencia.
+- Imagen local previa al último ajuste de certifi: construida correctamente, identificador `sha256:0892287e78c69b36b7c72da47dba2fef2bbda3a0f368ecc4c8cea7da1ee0e595`. La auditoría Compose terminó con código 0: imagen solicitada utilizada, arranque/API correctos, esquema de 9 tablas sin diferencias, persistencia tras recrear contenedores y bloqueo ante migración fallida. Sus recursos temporales se eliminaron. El CI debe construir y probar la imagen con certifi 2026.10.19.
+- Primera ejecución real y bloqueo por hallazgo: verificados. Repetición de CI tras actualizar certifi y conservar los JSON: pendiente. No se declara IE3 completo mientras falte esa evidencia y la planificación Dependabot no esté activa en la rama predeterminada.
 
 No se ha medido aún el cumplimiento de todos los parámetros de escalabilidad de IE3 ni se ha implantado el despliegue automático de IE4. Las reflexiones individuales y justificaciones académicas deben ser elaboradas por el equipo según la pauta.
