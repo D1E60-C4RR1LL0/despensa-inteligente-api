@@ -31,6 +31,7 @@ Además, esta entrega incorpora un flujo de trabajo basado en **Git**, integraci
 - [Instalación](#instalación)
 - [Ejecución con Docker](#ejecución-con-docker)
 - [Orquestación con Docker Compose](#orquestación-con-docker-compose)
+- [Seguridad del pipeline](#seguridad-del-pipeline)
 - [Documentación de la API](#documentación-de-la-api)
 - [Estado del proyecto](#estado-del-proyecto)
 - [Planificación de la Evaluación 2](#planificación-de-la-evaluación-2)
@@ -465,7 +466,7 @@ Este flujo permite detectar errores mediante validaciones automáticas antes de 
 
 # Integración continua
 
-El proyecto utiliza **GitHub Actions** para ejecutar las pruebas y construir la imagen Docker si las pruebas pasan.
+El proyecto utiliza **GitHub Actions** para ejecutar pruebas y análisis de seguridad antes de construir la imagen Docker.
 
 El workflow se encuentra en:
 
@@ -513,6 +514,9 @@ Configurar entorno de pruebas
        Ejecutar pytest
           |
           v
+    Verificar seguridad
+          |
+          v
     Construir imagen Docker
           |
           v
@@ -535,13 +539,13 @@ El pipeline permite:
 - Instalar las dependencias.
 - Configurar la variable de entorno necesaria para las pruebas.
 - Ejecutar la suite de pruebas automatizadas.
-- Construir la imagen con la etiqueta `inventory-api:<SHA de la ejecución>`, mediante un job que depende de las pruebas.
+- Construir la imagen con la etiqueta `inventory-api:<SHA de la ejecución>`, mediante un job que depende de las pruebas y los análisis de seguridad.
 - Verificar con Compose el arranque, la persistencia y el bloqueo ante una migración fallida, usando recursos temporales.
 - Informar el resultado del proceso.
 
 De esta manera, la validación del código no depende únicamente de una revisión manual antes de la integración.
 
-El job `pruebas` instala `requirements-dev.txt`; el job `imagen` construye el Dockerfile y ejecuta `scripts/audit_compose.py --image inventory-api:${{ github.sha }}` con permisos `contents: read`. La auditoría utiliza esa imagen sin reconstruirla y comprueba su identificador en los contenedores de API y migraciones. El build Docker ya pasó en GitHub Actions; la nueva verificación Compose está validada localmente y pendiente de su primera ejecución remota al subir esta rama. La imagen no se publica todavía en un registry y el stack de auditoría se elimina al terminar: es una prueba de integración, no un entorno desplegado permanente.
+El job `pruebas` instala `requirements-dev.txt`; `seguridad` ejecuta Snyk Code y el análisis de dependencias. El job `imagen` espera que ambos aprueben, construye el Dockerfile y ejecuta `scripts/audit_compose.py --image inventory-api:${{ github.sha }}` con permisos `contents: read`. La auditoría utiliza esa imagen sin reconstruirla y comprueba su identificador en los contenedores de API y migraciones. Docker y Compose ya pasaron en GitHub Actions en los bloques anteriores; el nuevo análisis Snyk está pendiente de validación remota. La imagen no se publica todavía en un registry y el stack de auditoría se elimina al terminar: es una prueba de integración, no un entorno desplegado permanente.
 
 ### CI y CD en este proyecto
 
@@ -613,7 +617,7 @@ Las pruebas cubren:
 
 ### Estado actual
 
-La E1 cerró con **49 pruebas automatizadas exitosas**. Tras las pruebas de migraciones, configuración JWT y configuración Compose, la suite local tiene **59 pruebas aprobadas**. Las evidencias están en las auditorías de [arranque](docs/devops/AUDITORIA_ARRANQUE.md), [Docker](docs/devops/AUDITORIA_DOCKER.md) y [Compose](docs/devops/AUDITORIA_COMPOSE.md).
+La E1 cerró con **49 pruebas automatizadas exitosas**. Tras las pruebas de migraciones, configuración y autorización del registro público, la suite local tiene **61 pruebas aprobadas**. Las evidencias están en las auditorías de [arranque](docs/devops/AUDITORIA_ARRANQUE.md), [Docker](docs/devops/AUDITORIA_DOCKER.md), [Compose](docs/devops/AUDITORIA_COMPOSE.md) y [seguridad](docs/devops/AUDITORIA_SEGURIDAD.md).
 
 Las mismas pruebas se ejecutan automáticamente mediante GitHub Actions.
 
@@ -830,6 +834,18 @@ El script usa un proyecto, credenciales, puerto y volumen propios. Elimina exclu
 
 ---
 
+# Seguridad del pipeline
+
+Dependabot tiene alertas y actualizaciones de seguridad activadas en GitHub. `.github/dependabot.yml` configura revisiones semanales de pip y las acciones, con PR de versiones hacia `develop`. El archivo debe llegar a la rama predeterminada `main` para que GitHub active esa planificación; las alertas y actualizaciones de seguridad siguen la rama predeterminada.
+
+El job `seguridad` ejecuta `snyk code test` y `snyk test` con umbral `high`. `imagen` depende de `pruebas` y `seguridad`: un análisis fallido o no ejecutable bloquea la construcción y la auditoría Compose. La configuración requiere `SNYK_TOKEN` en los secretos de **Actions y Dependabot**, y `SNYK_ORG` como variable no secreta del repositorio. No guardar el token en archivos ni compartirlo en el chat.
+
+Se conserva la evidencia JSON de Snyk cuando se genera. El análisis real y su resultado deben verificarse en CI; configurar el workflow no acredita por sí solo que el proyecto esté libre de vulnerabilidades. La [auditoría de seguridad](docs/devops/AUDITORIA_SEGURIDAD.md) registra la línea base de 50 alertas, las versiones propuestas, la política y el estado de las comprobaciones.
+
+El registro público acepta únicamente el rol `user`, que también es el valor predeterminado. Intentar crear un administrador mediante `/signup` devuelve HTTP 422. Las cuentas administrativas existentes conservan sus permisos.
+
+---
+
 # Documentación de la API
 
 Una vez iniciada la aplicación, se puede acceder a la documentación interactiva.
@@ -865,7 +881,7 @@ http://localhost:8000/redoc
 | Release `v1.0.0` | ✅ |
 | Imagen Docker de la API | ✅ Validada localmente con MySQL temporal |
 | Construcción Docker en CI | ✅ Validada en el PR #6 y su merge en develop |
-| Orquestación con Compose | ✅ Validada localmente; comprobación remota nueva pendiente |
+| Orquestación con Compose | ✅ Validada localmente y en CI del PR #7 y su merge |
 
 ---
 
@@ -873,7 +889,7 @@ http://localhost:8000/redoc
 
 La referencia de trabajo para la segunda entrega de Ingeniería DevOps está en la [guía maestra E2](docs/devops/GUIA_MAESTRA_E2_DOY0101.md). La [revisión inicial](docs/devops/REVISION_E2.md) contrasta esa guía con la pauta oficial y el repositorio, registra las pruebas ejecutadas y separa requisitos, recomendaciones y puntos por verificar.
 
-La [auditoría de arranque](docs/devops/AUDITORIA_ARRANQUE.md) documenta las migraciones, la [auditoría Docker](docs/devops/AUDITORIA_DOCKER.md) la imagen y su CI, y la [auditoría Compose](docs/devops/AUDITORIA_COMPOSE.md) la orquestación. Siguen pendientes la ejecución remota de la nueva prueba Compose, los análisis de seguridad y el despliegue automático con su trazabilidad.
+Las auditorías de [arranque](docs/devops/AUDITORIA_ARRANQUE.md), [Docker](docs/devops/AUDITORIA_DOCKER.md), [Compose](docs/devops/AUDITORIA_COMPOSE.md) y [seguridad](docs/devops/AUDITORIA_SEGURIDAD.md) registran la evolución y la evidencia de cada bloque. Siguen pendientes la validación remota del nuevo bloque de seguridad y el despliegue automático con su trazabilidad.
 
 ## Licencia
 

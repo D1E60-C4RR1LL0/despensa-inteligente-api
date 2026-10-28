@@ -19,7 +19,7 @@ Los PDF siguen fuera del repositorio. Si cambian de ubicación, habrá que local
 
 Actualización posterior a esta revisión inicial: consultar [AUDITORIA_DOCKER.md](AUDITORIA_DOCKER.md) para el Dockerfile, la exclusión de archivos locales, la configuración JWT por entorno y el build incorporado al workflow. La tabla siguiente conserva el estado inicial de E1; no representa el estado actual de esta rama.
 
-El bloque siguiente está registrado en [AUDITORIA_COMPOSE.md](AUDITORIA_COMPOSE.md): orquestación local de API/MySQL con inicialización por Alembic, volumen, red y healthchecks. El CI del bloque Docker ya se verificó; la nueva auditoría Compose en CI y los bloques de seguridad y despliegue automático siguen pendientes.
+El bloque siguiente está registrado en [AUDITORIA_COMPOSE.md](AUDITORIA_COMPOSE.md): orquestación de API/MySQL con inicialización por Alembic, volumen, red y healthchecks. Docker y Compose ya se verificaron en CI, incluyendo el merge del PR #7. El bloque actual se registra en [AUDITORIA_SEGURIDAD.md](AUDITORIA_SEGURIDAD.md): configuración Dependabot/Snyk, correcciones de dependencias y autorización, con 61 pruebas locales aprobadas. Siguen pendientes la ejecución real de Snyk y el despliegue automático.
 
 Cada indicador vale 20% de la E2. La evaluación completa tiene una ponderación de 45% en la asignatura, según la primera página de la pauta.
 

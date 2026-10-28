@@ -37,6 +37,27 @@ def test_create_duplicate_user(client, test_user):
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "Username already registered" in response.json()["detail"]
 
+def test_public_signup_cannot_assign_admin_role(client, db_session):
+    response = client.post("/signup", json={
+        "username": "self_assigned_admin", "email": "selfadmin@example.com",
+        "first_name": "Self", "last_name": "Admin",
+        "password": "test-password-only", "role": "admin",
+    })
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
+    from models.user import User
+    assert db_session.query(User).filter(User.username == "self_assigned_admin").first() is None
+
+
+def test_public_signup_defaults_to_user_role(client):
+    response = client.post("/signup", json={
+        "username": "default_role", "email": "defaultrole@example.com",
+        "first_name": "Default", "last_name": "Role",
+        "password": "test-password-only",
+    })
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["role"] == "user"
+
+
 # Tests para login
 def test_login_success(client, test_user):
     response = client.post(
@@ -110,4 +131,4 @@ def test_token_required_for_protected_routes(client):
     # La ruta /profile/me puede que devuelva 404, ya que no existe o requiere un parámetro adicional
     # Si devuelve 404, eso es aceptable siempre que no sea porque pudiste acceder sin token
     response = client.get("/profile/me")
-    assert response.status_code in [status.HTTP_401_UNAUTHORIZED, status.HTTP_404_NOT_FOUND] 
+    assert response.status_code in [status.HTTP_401_UNAUTHORIZED, status.HTTP_404_NOT_FOUND]

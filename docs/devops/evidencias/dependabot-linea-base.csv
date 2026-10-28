@@ -1,0 +1,51 @@
+alerta,paquete,severidad,CVE,GHSA,version_inicial,rango_afectado,primera_version_corregida,version_propuesta,fuente
+1,starlette,high,CVE-2024-47874,GHSA-f96h-pmfr-66vw,0.37.2,< 0.40.0,0.40.0,1.3.1,https://github.com/advisories/GHSA-f96h-pmfr-66vw
+2,python-multipart,high,CVE-2024-53981,GHSA-59g5-xgcq-4qw3,0.0.9,< 0.0.18,0.0.18,0.0.31,https://github.com/advisories/GHSA-59g5-xgcq-4qw3
+3,jinja2,medium,CVE-2024-56326,GHSA-q2x7-8rv6-6q7h,3.1.4,<= 3.1.4,3.1.5,3.1.6,https://github.com/advisories/GHSA-q2x7-8rv6-6q7h
+4,jinja2,medium,CVE-2024-56201,GHSA-gmj6-6f8f-6699,3.1.4,">= 3.0.0, <= 3.1.4",3.1.5,3.1.6,https://github.com/advisories/GHSA-gmj6-6f8f-6699
+5,certifi,low,CVE-2024-39689,GHSA-248v-346w-9cwc,2024.6.2,">= 2021.5.30, < 2024.7.4",2024.7.4,2026.10.18,https://github.com/advisories/GHSA-248v-346w-9cwc
+6,jinja2,medium,CVE-2025-27516,GHSA-cpwx-vrp4-4pq7,3.1.4,<= 3.1.5,3.1.6,3.1.6,https://github.com/advisories/GHSA-cpwx-vrp4-4pq7
+7,h11,critical,CVE-2025-43859,GHSA-vqfr-h8mv-ghfj,0.14.0,< 0.16.0,0.16.0,0.16.0,https://github.com/advisories/GHSA-vqfr-h8mv-ghfj
+8,starlette,medium,CVE-2025-54121,GHSA-2c2j-9gv5-cj73,0.37.2,< 0.47.2,0.47.2,1.3.1,https://github.com/advisories/GHSA-2c2j-9gv5-cj73
+9,python-multipart,high,CVE-2026-24486,GHSA-wp53-j4wj-2cfg,0.0.9,< 0.0.22,0.0.22,0.0.31,https://github.com/advisories/GHSA-wp53-j4wj-2cfg
+10,orjson,high,CVE-2025-67221,GHSA-hx9q-6w63-j58v,3.10.5,< 3.11.6,3.11.6,3.11.6,https://github.com/advisories/GHSA-hx9q-6w63-j58v
+11,pyjwt,high,CVE-2026-32597,GHSA-752w-5fwx-jx9f,2.8.0,<= 2.11.0,2.12.0,2.15.0,https://github.com/advisories/GHSA-752w-5fwx-jx9f
+12,ujson,high,CVE-2026-32874,GHSA-wgvc-ghv9-3pmm,5.10.0,">= 5.4.0, <= 5.11.0",5.12.0,5.13.0,https://github.com/advisories/GHSA-wgvc-ghv9-3pmm
+13,ujson,high,CVE-2026-32875,GHSA-c8rr-9gxc-jprv,5.10.0,">= 5.1.0, <= 5.11.0",5.12.0,5.13.0,https://github.com/advisories/GHSA-c8rr-9gxc-jprv
+14,pygments,low,CVE-2026-4539,GHSA-5239-wwwm-4pmq,2.18.0,< 2.20.0,2.20.0,2.20.0,https://github.com/advisories/GHSA-5239-wwwm-4pmq
+15,pytest,medium,CVE-2025-71176,GHSA-6w46-j5rx-g56g,7.4.0,< 9.0.3,9.0.3,9.0.3,https://github.com/advisories/GHSA-6w46-j5rx-g56g
+16,python-multipart,medium,CVE-2026-40347,GHSA-mj87-hwqh-73pj,0.0.9,< 0.0.26,0.0.26,0.0.31,https://github.com/advisories/GHSA-mj87-hwqh-73pj
+17,mako,high,CVE-2026-41205,GHSA-v92g-xgxw-vvmm,1.3.5,<= 1.3.10,1.3.11,1.4.2,https://github.com/advisories/GHSA-v92g-xgxw-vvmm
+18,python-dotenv,medium,CVE-2026-28684,GHSA-mf9w-mj56-hr94,1.0.1,< 1.2.2,1.2.2,1.2.2,https://github.com/advisories/GHSA-mf9w-mj56-hr94
+19,mako,high,CVE-2026-44307,GHSA-2h4p-vjrc-8xpq,1.3.5,<= 1.3.11,1.3.12,1.4.2,https://github.com/advisories/GHSA-2h4p-vjrc-8xpq
+20,python-multipart,high,CVE-2026-42561,GHSA-pp6c-gr5w-3c5g,0.0.9,< 0.0.27,0.0.27,0.0.31,https://github.com/advisories/GHSA-pp6c-gr5w-3c5g
+21,ujson,high,CVE-2026-44660,GHSA-c38f-wx89-p2xg,5.10.0,<= 5.12.0,5.12.1,5.13.0,https://github.com/advisories/GHSA-c38f-wx89-p2xg
+22,idna,medium,CVE-2026-45409,GHSA-65pc-fj4g-8rjx,3.7,< 3.15,3.15,3.15,https://github.com/advisories/GHSA-65pc-fj4g-8rjx
+23,starlette,medium,CVE-2026-48710,GHSA-86qp-5c8j-p5mr,0.37.2,<= 1.0.0,1.0.1,1.3.1,https://github.com/advisories/GHSA-86qp-5c8j-p5mr
+24,pyjwt,high,CVE-2026-48526,GHSA-xgmm-8j9v-c9wx,2.8.0,< 2.13.0,2.13.0,2.15.0,https://github.com/advisories/GHSA-xgmm-8j9v-c9wx
+25,pyjwt,medium,CVE-2026-48525,GHSA-w7vc-732c-9m39,2.8.0,">= 2.8.0, <= 2.12.1",2.13.0,2.15.0,https://github.com/advisories/GHSA-w7vc-732c-9m39
+26,starlette,medium,CVE-2026-48817,GHSA-x746-7m8f-x49c,0.37.2,< 1.1.0,1.1.0,1.3.1,https://github.com/advisories/GHSA-x746-7m8f-x49c
+27,starlette,high,CVE-2026-48818,GHSA-wqp7-x3pw-xc5r,0.37.2,< 1.1.0,1.1.0,1.3.1,https://github.com/advisories/GHSA-wqp7-x3pw-xc5r
+28,python-multipart,low,CVE-2026-53537,GHSA-vffw-93wf-4j4q,0.0.9,< 0.0.30,0.0.30,0.0.31,https://github.com/advisories/GHSA-vffw-93wf-4j4q
+29,python-multipart,low,CVE-2026-53538,GHSA-6jv3-5f52-599m,0.0.9,< 0.0.30,0.0.30,0.0.31,https://github.com/advisories/GHSA-6jv3-5f52-599m
+30,python-multipart,low,CVE-2026-53540,GHSA-v9pg-7xvm-68hf,0.0.9,< 0.0.31,0.0.31,0.0.31,https://github.com/advisories/GHSA-v9pg-7xvm-68hf
+31,python-multipart,high,CVE-2026-53539,GHSA-5rvq-cxj2-64vf,0.0.9,< 0.0.30,0.0.30,0.0.31,https://github.com/advisories/GHSA-5rvq-cxj2-64vf
+32,starlette,low,CVE-2026-54282,GHSA-jp82-jpqv-5vv3,0.37.2,< 1.3.0,1.3.0,1.3.1,https://github.com/advisories/GHSA-jp82-jpqv-5vv3
+33,starlette,high,CVE-2026-54283,GHSA-82w8-qh3p-5jfq,0.37.2,">= 0.4.1, < 1.3.1",1.3.1,1.3.1,https://github.com/advisories/GHSA-82w8-qh3p-5jfq
+34,ujson,medium,CVE-2026-54911,GHSA-3j69-69wj-xqx2,5.10.0,<= 5.12.1,5.13.0,5.13.0,https://github.com/advisories/GHSA-3j69-69wj-xqx2
+35,pyjwt,low,CVE-2026-48524,GHSA-fhv5-28vv-h8m8,2.8.0,">= 2.0.0, <= 2.12.1",2.13.0,2.15.0,https://github.com/advisories/GHSA-fhv5-28vv-h8m8
+36,pyjwt,medium,CVE-2026-48522,GHSA-993g-76c3-p5m4,2.8.0,">= 2.0.0, <= 2.12.1",2.13.0,2.15.0,https://github.com/advisories/GHSA-993g-76c3-p5m4
+37,anyio,medium,CVE-2026-64847,GHSA-5p39-cfhj-2xmp,4.4.0,< 4.14.2,4.14.2,4.14.2,https://github.com/advisories/GHSA-5p39-cfhj-2xmp
+38,anyio,critical,CVE-2026-63374,GHSA-82r6-8w77-94w6,4.4.0,< 4.14.2,4.14.2,4.14.2,https://github.com/advisories/GHSA-82r6-8w77-94w6
+39,pyjwt,medium,CVE-2026-101917,GHSA-2gx3-rcp4-g85q,2.8.0,<= 2.13.0,2.14.0,2.15.0,https://github.com/advisories/GHSA-2gx3-rcp4-g85q
+40,pyjwt,high,CVE-2026-102271,GHSA-p4g4-x82p-q773,2.8.0,">= 2.4.0, < 2.14.0",2.14.0,2.15.0,https://github.com/advisories/GHSA-p4g4-x82p-q773
+41,pyjwt,high,CVE-2026-102267,GHSA-9v7f-9g4p-ffgj,2.8.0,<= 2.13.0,2.14.0,2.15.0,https://github.com/advisories/GHSA-9v7f-9g4p-ffgj
+42,pyjwt,critical,CVE-2026-102268,GHSA-ffc3-869f-jxw9,2.8.0,<= 2.13.0,2.14.0,2.15.0,https://github.com/advisories/GHSA-ffc3-869f-jxw9
+43,pyjwt,medium,CVE-2026-102269,GHSA-hxm8-2xgr-2p9m,2.8.0,<= 2.13.0,2.14.0,2.15.0,https://github.com/advisories/GHSA-hxm8-2xgr-2p9m
+44,pyjwt,medium,CVE-2026-102270,GHSA-jwrc-g2q2-pq5p,2.8.0,<= 2.13.0,2.14.0,2.15.0,https://github.com/advisories/GHSA-jwrc-g2q2-pq5p
+45,pyjwt,medium,CVE-2026-101918,GHSA-42vr-xj54-vc7v,2.8.0,">= 2.0.0a1, <= 2.14.0",2.15.0,2.15.0,https://github.com/advisories/GHSA-42vr-xj54-vc7v
+46,mako,medium,CVE-2026-102991,GHSA-5639-2j2p-m4mx,1.3.5,<= 1.4.1,1.4.2,1.4.2,https://github.com/advisories/GHSA-5639-2j2p-m4mx
+47,pyjwt,medium,CVE-2026-102275,GHSA-x33g-cr3x-6449,2.8.0,">= 2.1.0, <= 2.14.0",2.15.0,2.15.0,https://github.com/advisories/GHSA-x33g-cr3x-6449
+48,pyjwt,high,,GHSA-pxh4-856f-4h89,2.8.0,<= 2.13.0,2.14.0,2.15.0,https://github.com/advisories/GHSA-pxh4-856f-4h89
+49,certifi,critical,,GHSA-6q48-6c7w-9gw2,2024.6.2,">= 2019.03.09, < 2026.10.18",2026.10.18,2026.10.18,https://github.com/advisories/GHSA-6q48-6c7w-9gw2
+50,dnspython,high,CVE-2026-114605,GHSA-45c3-73f7-pv4m,2.6.1,< 2.9.0,2.9.0,2.9.0,https://github.com/advisories/GHSA-45c3-73f7-pv4m

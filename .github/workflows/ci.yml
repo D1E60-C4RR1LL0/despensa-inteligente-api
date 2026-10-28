@@ -22,10 +22,10 @@ jobs:
 
     steps:
       - name: Descargar repositorio
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Configurar Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
 
@@ -37,16 +37,76 @@ jobs:
       - name: Ejecutar pruebas
         run: pytest
 
+  seguridad:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SNYK_CFG_ORG: ${{ vars.SNYK_ORG }}
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Comprobar configuracion de Snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        shell: bash
+        run: |
+          if [ -z "$SNYK_TOKEN" ]; then
+            echo "::error::Configurar SNYK_TOKEN en los secretos de Actions y Dependabot."
+            exit 1
+          fi
+          if [ -z "$SNYK_CFG_ORG" ]; then
+            echo "::error::Configurar SNYK_ORG como variable del repositorio."
+            exit 1
+          fi
+
+      - name: Instalar Snyk CLI
+        uses: snyk/actions/setup@11b673cfb4b0dc0d860a1323caa199d54950dcce
+        with:
+          snyk-version: v1.1308.3
+
+      - name: Configurar Python para las dependencias
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependencias para el analisis
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Analizar codigo con Snyk Code
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          mkdir -p .security-reports
+          snyk code test --severity-threshold=high --json-file-output=.security-reports/snyk-code.json
+
+      - name: Analizar dependencias de esta rama con Snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk test --file=requirements-dev.txt --package-manager=pip --command=python --severity-threshold=high --json-file-output=.security-reports/snyk-dependencies.json
+
+      - name: Conservar resultado de seguridad
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: snyk-security-${{ github.sha }}
+          path: .security-reports/*.json
+          if-no-files-found: ignore
+          retention-days: 14
+
   imagen:
-    needs: pruebas
+    needs: [pruebas, seguridad]
     runs-on: ubuntu-latest
 
     steps:
       - name: Descargar repositorio
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Configurar Python para la auditoria
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
 
