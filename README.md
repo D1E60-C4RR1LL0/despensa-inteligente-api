@@ -545,7 +545,7 @@ El pipeline permite:
 
 De esta manera, la validación del código no depende únicamente de una revisión manual antes de la integración.
 
-El job `pruebas` instala `requirements-dev.txt`; `seguridad` ejecuta Snyk Code y el análisis de dependencias. El job `imagen` espera que ambos aprueben, construye el Dockerfile y ejecuta `scripts/audit_compose.py --image inventory-api:${{ github.sha }}` con permisos `contents: read`. La auditoría utiliza esa imagen sin reconstruirla y comprueba su identificador en los contenedores de API y migraciones. Docker y Compose ya pasaron en GitHub Actions en los bloques anteriores. El primer CI con Snyk detectó una incidencia crítica de certifi y bloqueó la imagen; se corrigió la versión y falta confirmar el nuevo CI. La imagen no se publica todavía en un registry y el stack de auditoría se elimina al terminar: es una prueba de integración, no un entorno desplegado permanente.
+El job `pruebas` instala `requirements-dev.txt`; `seguridad` ejecuta Snyk Code y el análisis de dependencias. El job `imagen` espera que ambos aprueben, construye el Dockerfile y ejecuta `scripts/audit_compose.py --image inventory-api:${{ github.sha }}` con permisos `contents: read`. La auditoría utiliza esa imagen sin reconstruirla y comprueba su identificador en los contenedores de API y migraciones. El primer CI con Snyk detectó una incidencia crítica de certifi y bloqueó la imagen; tras corregirla, el [CI aprobó los tres jobs](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40628304613). La imagen no se publica todavía en un registry y el stack de auditoría se elimina al terminar: es una prueba de integración, no un entorno desplegado permanente.
 
 ### CI y CD en este proyecto
 
@@ -840,7 +840,7 @@ Dependabot tiene alertas y actualizaciones de seguridad activadas en GitHub. `.g
 
 El job `seguridad` ejecuta `snyk code test` y `snyk test` con umbral `high`. `imagen` depende de `pruebas` y `seguridad`: un análisis fallido o no ejecutable bloquea la construcción y la auditoría Compose. La configuración requiere `SNYK_TOKEN` en los secretos de **Actions y Dependabot**, y `SNYK_ORG` como variable no secreta del repositorio. No guardar el token en archivos ni compartirlo en el chat.
 
-Se solicita salida JSON de Snyk y se conserva como artefacto. El [primer CI de seguridad](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40628001505) verificó la autenticación, aprobó Snyk Code con el umbral elegido y bloqueó la imagen por un hallazgo crítico de certifi. Se actualizó a la versión corregida; la [auditoría de seguridad](docs/devops/AUDITORIA_SEGURIDAD.md) registra esa evidencia, la línea base de 50 alertas, la política y el estado de la repetición. Un análisis con umbral `high` no informa sobre todas las severidades.
+Se solicita salida JSON de Snyk y se conserva como artefacto durante 14 días. El [primer CI de seguridad](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40628001505) verificó la autenticación, aprobó Snyk Code con el umbral elegido y bloqueó la imagen por un hallazgo crítico de certifi. Se actualizó a la versión corregida y el siguiente CI aprobó. La [auditoría de seguridad](docs/devops/AUDITORIA_SEGURIDAD.md) registra esa evidencia, la línea base de 50 alertas y el ajuste posterior para subir informes de la carpeta oculta. Un análisis con umbral `high` no informa sobre todas las severidades.
 
 El registro público acepta únicamente el rol `user`, que también es el valor predeterminado. Intentar crear un administrador mediante `/signup` devuelve HTTP 422. Las cuentas administrativas existentes conservan sus permisos.
 
@@ -889,7 +889,7 @@ http://localhost:8000/redoc
 
 La referencia de trabajo para la segunda entrega de Ingeniería DevOps está en la [guía maestra E2](docs/devops/GUIA_MAESTRA_E2_DOY0101.md). La [revisión inicial](docs/devops/REVISION_E2.md) contrasta esa guía con la pauta oficial y el repositorio, registra las pruebas ejecutadas y separa requisitos, recomendaciones y puntos por verificar.
 
-Las auditorías de [arranque](docs/devops/AUDITORIA_ARRANQUE.md), [Docker](docs/devops/AUDITORIA_DOCKER.md), [Compose](docs/devops/AUDITORIA_COMPOSE.md) y [seguridad](docs/devops/AUDITORIA_SEGURIDAD.md) registran la evolución y la evidencia de cada bloque. Siguen pendientes la validación remota del nuevo bloque de seguridad y el despliegue automático con su trazabilidad.
+Las auditorías de [arranque](docs/devops/AUDITORIA_ARRANQUE.md), [Docker](docs/devops/AUDITORIA_DOCKER.md), [Compose](docs/devops/AUDITORIA_COMPOSE.md) y [seguridad](docs/devops/AUDITORIA_SEGURIDAD.md) registran la evolución y la evidencia de cada bloque. Siguen pendientes integrar el bloque de seguridad, activar la planificación Dependabot al entregar en main y el despliegue automático con su trazabilidad.
 
 ## Licencia
 

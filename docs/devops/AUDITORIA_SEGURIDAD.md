@@ -65,7 +65,7 @@ snyk test --file=requirements-dev.txt --package-manager=pip --command=python --s
 
 El job `imagen` depende de `pruebas` y `seguridad`. No hay `continue-on-error` en los análisis. Un hallazgo sobre el umbral, autenticación inválida, falta de token u otro error del analizador impide construir y ejecutar la auditoría de contenedores. Un error de análisis no se registra como ausencia de vulnerabilidades.
 
-Los resultados se solicitan mediante `--json` y se capturan con `tee` para conservarlos como artefactos, incluso tras un fallo, durante 14 días. `pipefail` conserva el fallo de Snyk aunque `tee` termine correctamente. La ausencia de resultados o un archivo vacío no acredita un análisis correcto: deben comprobarse el código de salida y el contenido. En la primera ejecución, `--json-file-output` no produjo los archivos esperados; por eso se sustituyó por esta captura explícita.
+Los resultados se solicitan mediante `--json` y se capturan con `tee` para conservarlos como artefactos, incluso tras un fallo, durante 14 días. `pipefail` conserva el fallo de Snyk aunque `tee` termine correctamente. La ausencia de resultados o un archivo vacío no acredita un análisis correcto: deben comprobarse el código de salida y el contenido. Las primeras ejecuciones no subieron informes: `upload-artifact` excluye por defecto las carpetas ocultas. Se habilitó `include-hidden-files` únicamente sobre el patrón `.security-reports/*.json`, se captura explícitamente la salida y se establece error si no se encuentran archivos. Esto no incluye otros archivos ocultos del repositorio.
 
 Las acciones oficiales se fijaron por SHA y se actualizaron a versiones verificadas con Node 24 para resolver las advertencias observadas en los CI anteriores. Snyk CLI se fija en v1.1308.3 mediante la acción oficial de setup. El token solo se inyecta en el guard de configuración y los pasos de análisis; no en pip ni en la construcción Docker.
 
@@ -83,7 +83,9 @@ Se abrió el [PR #12 en borrador](https://github.com/D1E60-C4RR1LL0/despensa-int
 
 La SCA analizó 52 dependencias y encontró una incidencia crítica en cuatro rutas: [SNYK-PYTHON-CERTIFI-21280764](https://security.snyk.io/vuln/SNYK-PYTHON-CERTIFI-21280764), que afecta también a la propuesta inicial `certifi==2026.10.18`. Snyk terminó con código 1 y `imagen` quedó omitida. Esta ejecución demuestra el bloqueo ante un hallazgo real, sin introducir código vulnerable artificialmente ni confundir un error de autenticación con una vulnerabilidad.
 
-Se ajustó certifi a `2026.10.19`, versión corregida indicada por Snyk y verificada en PyPI. Este hallazgo adicional ilustra por qué comparar con los 50 rangos iniciales no sustituía el escaneo actualizado. La siguiente ejecución debe confirmar la corrección y conservar los JSON.
+Se ajustó certifi a `2026.10.19`, versión corregida indicada por Snyk y verificada en PyPI. Este hallazgo adicional ilustra por qué comparar con los 50 rangos iniciales no sustituía el escaneo actualizado.
+
+El [CI de la corrección](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40628304613), sobre `38d4a7158791c2a99b94b42404ab01408fe5868c`, aprobó los tres jobs: 61 pruebas, los dos análisis y la construcción/auditoría Compose. La SCA revisó 52 dependencias sin incidencias sobre el umbral y Compose informó `all_checks_pass: true` sobre la imagen `sha256:8bf9b2b87467f7ed6eaab26b0443f4584c85e6dda9151da6588ab68dd1ecc536`. Los resultados de seguridad quedaron en el log; la corrección posterior de inclusión de carpetas ocultas debe confirmar la subida efectiva de los JSON.
 
 ## Evidencia y trabajo pendiente
 
@@ -92,6 +94,6 @@ Se ajustó certifi a `2026.10.19`, versión corregida indicada por Snyk y verifi
 - Suite local tras la corrección final de certifi: **61 passed, 4 warnings in 32.23s**. `pip check`: sin incompatibilidades.
 - Corrección de roles: prueba negativa fallida antes del cambio y aprobada después.
 - Imagen local previa al último ajuste de certifi: construida correctamente, identificador `sha256:0892287e78c69b36b7c72da47dba2fef2bbda3a0f368ecc4c8cea7da1ee0e595`. La auditoría Compose terminó con código 0: imagen solicitada utilizada, arranque/API correctos, esquema de 9 tablas sin diferencias, persistencia tras recrear contenedores y bloqueo ante migración fallida. Sus recursos temporales se eliminaron. El CI debe construir y probar la imagen con certifi 2026.10.19.
-- Primera ejecución real y bloqueo por hallazgo: verificados. Repetición de CI tras actualizar certifi y conservar los JSON: pendiente. No se declara IE3 completo mientras falte esa evidencia y la planificación Dependabot no esté activa en la rama predeterminada.
+- Primera ejecución real y bloqueo por hallazgo: verificados. CI tras actualizar certifi: los tres jobs aprobados. La conservación de JSON se verifica en los artefactos del CI final del PR. No se declara IE3 completo: la planificación Dependabot aún debe llegar a la rama predeterminada y quedan aspectos de escalabilidad de la rúbrica.
 
 No se ha medido aún el cumplimiento de todos los parámetros de escalabilidad de IE3 ni se ha implantado el despliegue automático de IE4. Las reflexiones individuales y justificaciones académicas deben ser elaboradas por el equipo según la pauta.

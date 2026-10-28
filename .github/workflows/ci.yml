@@ -99,7 +99,8 @@ jobs:
         with:
           name: snyk-security-${{ github.sha }}
           path: .security-reports/*.json
-          if-no-files-found: ignore
+          include-hidden-files: true
+          if-no-files-found: error
           retention-days: 14
 
   imagen:
