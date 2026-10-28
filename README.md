@@ -30,6 +30,7 @@ Además, esta entrega incorpora un flujo de trabajo basado en **Git**, integraci
 - [Requisitos previos](#requisitos-previos)
 - [Instalación](#instalación)
 - [Ejecución con Docker](#ejecución-con-docker)
+- [Orquestación con Docker Compose](#orquestación-con-docker-compose)
 - [Documentación de la API](#documentación-de-la-api)
 - [Estado del proyecto](#estado-del-proyecto)
 - [Planificación de la Evaluación 2](#planificación-de-la-evaluación-2)
@@ -515,6 +516,9 @@ Configurar entorno de pruebas
     Construir imagen Docker
           |
           v
+    Verificar Compose
+          |
+          v
    Resultado del pipeline
 ```
 
@@ -532,11 +536,12 @@ El pipeline permite:
 - Configurar la variable de entorno necesaria para las pruebas.
 - Ejecutar la suite de pruebas automatizadas.
 - Construir la imagen con la etiqueta `inventory-api:<SHA de la ejecución>`, mediante un job que depende de las pruebas.
+- Verificar con Compose el arranque, la persistencia y el bloqueo ante una migración fallida, usando recursos temporales.
 - Informar el resultado del proceso.
 
 De esta manera, la validación del código no depende únicamente de una revisión manual antes de la integración.
 
-El job `pruebas` instala `requirements-dev.txt`; el job `imagen` construye el Dockerfile con permisos `contents: read`. La imagen se construye en el runner; todavía no se publica en un registry ni se despliega. La nueva configuración Docker queda pendiente de su primera ejecución remota al subir esta rama y abrir el PR.
+El job `pruebas` instala `requirements-dev.txt`; el job `imagen` construye el Dockerfile y ejecuta `scripts/audit_compose.py --image inventory-api:${{ github.sha }}` con permisos `contents: read`. La auditoría utiliza esa imagen sin reconstruirla y comprueba su identificador en los contenedores de API y migraciones. El build Docker ya pasó en GitHub Actions; la nueva verificación Compose está validada localmente y pendiente de su primera ejecución remota al subir esta rama. La imagen no se publica todavía en un registry y el stack de auditoría se elimina al terminar: es una prueba de integración, no un entorno desplegado permanente.
 
 ### CI y CD en este proyecto
 
@@ -608,7 +613,7 @@ Las pruebas cubren:
 
 ### Estado actual
 
-La E1 cerró con **49 pruebas automatizadas exitosas**. Tras las pruebas de migraciones y configuración JWT, la suite local tiene **57 pruebas aprobadas**. Las evidencias están en la [auditoría de arranque](docs/devops/AUDITORIA_ARRANQUE.md) y la [auditoría Docker](docs/devops/AUDITORIA_DOCKER.md).
+La E1 cerró con **49 pruebas automatizadas exitosas**. Tras las pruebas de migraciones, configuración JWT y configuración Compose, la suite local tiene **59 pruebas aprobadas**. Las evidencias están en las auditorías de [arranque](docs/devops/AUDITORIA_ARRANQUE.md), [Docker](docs/devops/AUDITORIA_DOCKER.md) y [Compose](docs/devops/AUDITORIA_COMPOSE.md).
 
 Las mismas pruebas se ejecutan automáticamente mediante GitHub Actions.
 
@@ -781,7 +786,47 @@ docker run --rm --publish 127.0.0.1:8000:8000 --env DATABASE_URL --env JWT_SECRE
 
 La demostración queda disponible en `http://localhost:8000/docs`. `Ctrl+C` detiene el servidor; el volumen conserva sus datos. Las variables anteriores afectan esa sesión de PowerShell y seleccionan SQLite para la demostración. El healthcheck consulta `/openapi.json`: acredita respuesta HTTP, mientras que la auditoría comprueba también operaciones con base de datos.
 
-Para conectar la imagen a MySQL, proporcionar una URL válida desde el contenedor: `localhost` dentro del contenedor identifica al propio contenedor. En Docker Desktop, una base del host puede requerir `host.docker.internal`; entre contenedores se usa su nombre de servicio o alias de red. La configuración definitiva de Compose sigue pendiente. Ver decisiones, resultados y límites en [AUDITORIA_DOCKER.md](docs/devops/AUDITORIA_DOCKER.md).
+Para conectar la imagen a MySQL, proporcionar una URL válida desde el contenedor: `localhost` dentro del contenedor identifica al propio contenedor. En Docker Desktop, una base del host puede requerir `host.docker.internal`; entre contenedores se usa su nombre de servicio o alias de red. El stack Compose de la siguiente sección utiliza `db`. Ver los resultados de la imagen en [AUDITORIA_DOCKER.md](docs/devops/AUDITORIA_DOCKER.md).
+
+---
+
+# Orquestación con Docker Compose
+
+El archivo `docker-compose.yml` define MySQL (`db`), una tarea breve de migración (`migrate`) y la API (`api`). La secuencia es: MySQL saludable → migraciones completadas → API. La tarea de migración reutiliza la imagen de la API y termina con código 0; ese estado es el esperado.
+
+Preparar una configuración local independiente del MySQL y del `.env` existentes:
+
+```powershell
+python scripts/init_compose_env.py
+docker compose --env-file .env.compose config --quiet
+docker compose --env-file .env.compose up --build --detach --wait --wait-timeout 180
+docker compose --env-file .env.compose ps --all
+```
+
+El helper genera `.env.compose` con credenciales propias y una clave JWT sin mostrarlas. Si el archivo ya existe, lo conserva. `.env.compose.example` documenta las variables; `.gitignore` excluye la configuración real. `config --quiet` valida sin mostrar los secretos interpolados.
+
+La API queda disponible en `http://localhost:8000/docs`. El puerto puede cambiarse mediante `API_PORT` en `.env.compose`. MySQL no publica un puerto en el host: la API lo alcanza como `db` por la red `backend`. Los datos se guardan en el volumen `mysql_data`, cuyo nombre real incluye el proyecto Compose.
+
+Ver logs o detener los servicios conservando los datos:
+
+```powershell
+docker compose --env-file .env.compose logs --tail 100 api migrate
+docker compose --env-file .env.compose down
+```
+
+Repetir `up` con las mismas variables permite recuperar los datos del volumen. Añadir `--volumes` a `down` elimina esos datos: no es el comando habitual para detener este stack. Las variables `MYSQL_*` inicializan usuarios y base cuando el volumen está vacío; cambiarlas después no actualiza automáticamente las cuentas ya almacenadas. Conservar `.env.compose` junto con la persistencia y planificar cualquier cambio de credenciales.
+
+`COMPOSE_DATABASE_URL` es la URL interna de este stack y se pasa a la API como `DATABASE_URL`. Su nombre separado evita reutilizar por accidente una `DATABASE_URL` de la sesión local. Si se editan usuario, contraseña o base en el archivo, la URL debe mantenerse coherente. Como en las clases, las variables del entorno de la consola pueden prevalecer sobre el archivo.
+
+`API_IMAGE` permite seleccionar la imagen compartida por API y migraciones; el valor predeterminado es `inventory-api:local`. CI utiliza la etiqueta con SHA del build y la auditoría comprueba que se pruebe exactamente ese artefacto.
+
+Para comprobar arranque, persistencia, esquema y fallo de migración en un proyecto completamente desechable:
+
+```powershell
+python scripts/audit_compose.py
+```
+
+El script usa un proyecto, credenciales, puerto y volumen propios. Elimina exclusivamente ese proyecto de auditoría y sus datos al terminar. No utiliza `.env.compose`, el `.env` ni el MySQL existente del usuario. La correspondencia con semanas 6–7, las adaptaciones del proyecto y las evidencias están en [AUDITORIA_COMPOSE.md](docs/devops/AUDITORIA_COMPOSE.md).
 
 ---
 
@@ -819,7 +864,8 @@ http://localhost:8000/redoc
 | Pull Requests | ✅ |
 | Release `v1.0.0` | ✅ |
 | Imagen Docker de la API | ✅ Validada localmente con MySQL temporal |
-| Construcción Docker en CI | Configurada; primera ejecución remota pendiente |
+| Construcción Docker en CI | ✅ Validada en el PR #6 y su merge en develop |
+| Orquestación con Compose | ✅ Validada localmente; comprobación remota nueva pendiente |
 
 ---
 
@@ -827,7 +873,7 @@ http://localhost:8000/redoc
 
 La referencia de trabajo para la segunda entrega de Ingeniería DevOps está en la [guía maestra E2](docs/devops/GUIA_MAESTRA_E2_DOY0101.md). La [revisión inicial](docs/devops/REVISION_E2.md) contrasta esa guía con la pauta oficial y el repositorio, registra las pruebas ejecutadas y separa requisitos, recomendaciones y puntos por verificar.
 
-La [auditoría de arranque](docs/devops/AUDITORIA_ARRANQUE.md) documenta la corrección inicial de migraciones. La [auditoría Docker](docs/devops/AUDITORIA_DOCKER.md) registra la contenerización y su validación local. La ejecución remota del nuevo job Docker, los análisis de seguridad, el despliegue y Compose siguen pendientes.
+La [auditoría de arranque](docs/devops/AUDITORIA_ARRANQUE.md) documenta las migraciones, la [auditoría Docker](docs/devops/AUDITORIA_DOCKER.md) la imagen y su CI, y la [auditoría Compose](docs/devops/AUDITORIA_COMPOSE.md) la orquestación. Siguen pendientes la ejecución remota de la nueva prueba Compose, los análisis de seguridad y el despliegue automático con su trazabilidad.
 
 ## Licencia
 
