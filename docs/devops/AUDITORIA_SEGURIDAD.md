@@ -73,7 +73,7 @@ Referencias: [Snyk Code](https://docs.snyk.io/developer-tools/snyk-cli/commands/
 
 ## Cuenta y secretos
 
-El usuario creó una cuenta Snyk y habilitó Snyk Code. Se comprobaron los nombres `SNYK_TOKEN` en los almacenes de Actions y Dependabot, sin leer su valor. Se configuró la variable no secreta `SNYK_ORG=d1e60-c4rr1ll0`, tomando el slug visible en la captura facilitada por el usuario. Su autenticación y selección efectiva deben verificarse en la ejecución real.
+El usuario creó una cuenta Snyk y habilitó Snyk Code. Se comprobaron los nombres `SNYK_TOKEN` en los almacenes de Actions y Dependabot, sin leer su valor. Se configuró la variable no secreta `SNYK_ORG=d1e60-c4rr1ll0`, tomando el slug visible en la captura facilitada por el usuario y confirmado después mediante la URL de su organización. La autenticación y la selección de organización quedaron verificadas por los análisis reales de CI descritos a continuación.
 
 Los PR de Dependabot utilizan su almacén de secretos, por eso ambos deben contener el mismo token. El valor no se escribe en el repositorio, en `.env` ni en el chat. Las renovaciones deben actualizar ambos almacenes antes de la caducidad del PAT. La cuenta Free tiene límites de pruebas: consultar el [plan vigente de Snyk](https://snyk.io/plans/).
 
@@ -85,7 +85,20 @@ La SCA analizó 52 dependencias y encontró una incidencia crítica en cuatro ru
 
 Se ajustó certifi a `2026.10.19`, versión corregida indicada por Snyk y verificada en PyPI. Este hallazgo adicional ilustra por qué comparar con los 50 rangos iniciales no sustituía el escaneo actualizado.
 
-El [CI de la corrección](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40628304613), sobre `38d4a7158791c2a99b94b42404ab01408fe5868c`, aprobó los tres jobs: 61 pruebas, los dos análisis y la construcción/auditoría Compose. La SCA revisó 52 dependencias sin incidencias sobre el umbral y Compose informó `all_checks_pass: true` sobre la imagen `sha256:8bf9b2b87467f7ed6eaab26b0443f4584c85e6dda9151da6588ab68dd1ecc536`. Los resultados de seguridad quedaron en el log; la corrección posterior de inclusión de carpetas ocultas debe confirmar la subida efectiva de los JSON.
+El [CI de la corrección](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40628304613), sobre `38d4a7158791c2a99b94b42404ab01408fe5868c`, aprobó los tres jobs: 61 pruebas, los dos análisis y la construcción/auditoría Compose. La SCA revisó 52 dependencias sin incidencias sobre el umbral y Compose informó `all_checks_pass: true` sobre la imagen `sha256:8bf9b2b87467f7ed6eaab26b0443f4584c85e6dda9151da6588ab68dd1ecc536`. Los resultados de esa ejecución quedaron en el log. La siguiente ejecución verificó además la subida de los JSON tras corregir la inclusión de carpetas ocultas.
+
+## CI final del bloque y artefactos verificados
+
+El [CI 40628651678](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40628651678), correspondiente al commit de la rama `b61f553c79ca22584c740e5d17ea95b82e4bb928`, terminó con **pruebas, seguridad e imagen aprobados**. Esta es la ejecución de referencia para el código y el workflow revisados antes de esta actualización documental.
+
+- Pruebas: 61 aprobadas.
+- Snyk Code: el JSON descargado contiene 0 resultados con el umbral `high` configurado.
+- Snyk Open Source: 52 dependencias analizadas; el JSON informa `ok: true`, `uniqueCount: 0` y `vulnerabilities: []` con ese mismo umbral. Estos resultados no acreditan ausencia de incidencias de severidad inferior.
+- Docker y Compose: imagen `sha256:3fb57ffd20160f8268268fc8950b7e3bb3bf92bafe543fdbf9f53635065a7951`, con `requested_image_used: true` y `all_checks_pass: true`. Se verificaron arranque/API, esquema, persistencia y bloqueo ante migración fallida usando la imagen construida en CI con certifi 2026.10.19.
+
+Se descargó el [artefacto de seguridad 12790597158](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40628651678/artifacts/12790597158) y se verificó que contiene dos archivos JSON válidos: `snyk-code.json` y `snyk-dependencies.json`, con los resultados anteriores. GitHub registra el nombre `snyk-security-88361a06cc29f16bd4b4a6cd10c274585e4781e2` y el digest del archivo ZIP `sha256:c7ca5ffa917927fb2cd0d4ec13cca3cfa38cd4a2d34d86793eaf66c20a5055c6`. El SHA del nombre corresponde al commit de integración temporal que GitHub prueba en el PR; el commit de la rama se identifica arriba.
+
+La retención configurada es de 14 días; GitHub indica vencimiento del artefacto el 11 de noviembre de 2026. Este registro conserva los identificadores, enlaces y resultados verificados, pero la disponibilidad del ZIP depende de esa retención. El PR #12 continúa en borrador hacia `develop` al registrar esta evidencia.
 
 ## Evidencia y trabajo pendiente
 
@@ -93,7 +106,7 @@ El [CI de la corrección](https://github.com/D1E60-C4RR1LL0/despensa-inteligente
 - Comparación contra los rangos de las 50 alertas iniciales: ninguna versión propuesta dentro de esos rangos.
 - Suite local tras la corrección final de certifi: **61 passed, 4 warnings in 32.23s**. `pip check`: sin incompatibilidades.
 - Corrección de roles: prueba negativa fallida antes del cambio y aprobada después.
-- Imagen local previa al último ajuste de certifi: construida correctamente, identificador `sha256:0892287e78c69b36b7c72da47dba2fef2bbda3a0f368ecc4c8cea7da1ee0e595`. La auditoría Compose terminó con código 0: imagen solicitada utilizada, arranque/API correctos, esquema de 9 tablas sin diferencias, persistencia tras recrear contenedores y bloqueo ante migración fallida. Sus recursos temporales se eliminaron. El CI debe construir y probar la imagen con certifi 2026.10.19.
-- Primera ejecución real y bloqueo por hallazgo: verificados. CI tras actualizar certifi: los tres jobs aprobados. La conservación de JSON se verifica en los artefactos del CI final del PR. No se declara IE3 completo: la planificación Dependabot aún debe llegar a la rama predeterminada y quedan aspectos de escalabilidad de la rúbrica.
+- Imagen local previa al último ajuste de certifi: construida correctamente, identificador `sha256:0892287e78c69b36b7c72da47dba2fef2bbda3a0f368ecc4c8cea7da1ee0e595`. La auditoría Compose terminó con código 0: imagen solicitada utilizada, arranque/API correctos, esquema de 9 tablas sin diferencias, persistencia tras recrear contenedores y bloqueo ante migración fallida. Sus recursos temporales se eliminaron. La imagen con certifi 2026.10.19 se construyó y probó posteriormente en el CI final documentado arriba.
+- Primera ejecución real y bloqueo por hallazgo: verificados. CI final tras actualizar certifi: los tres jobs aprobados y los dos informes JSON descargados y verificados. No se declara IE3 completo: la planificación Dependabot aún debe llegar a la rama predeterminada y quedan aspectos de escalabilidad de la rúbrica.
 
 No se ha medido aún el cumplimiento de todos los parámetros de escalabilidad de IE3 ni se ha implantado el despliegue automático de IE4. Las reflexiones individuales y justificaciones académicas deben ser elaboradas por el equipo según la pauta.
