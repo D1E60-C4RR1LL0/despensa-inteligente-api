@@ -45,5 +45,13 @@ jobs:
       - name: Descargar repositorio
         uses: actions/checkout@v4
 
+      - name: Configurar Python para la auditoria
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Construir imagen Docker
         run: docker build --tag inventory-api:${{ github.sha }} .
+
+      - name: Verificar Compose y persistencia
+        run: python scripts/audit_compose.py --image inventory-api:${{ github.sha }}

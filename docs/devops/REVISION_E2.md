@@ -19,6 +19,8 @@ Los PDF siguen fuera del repositorio. Si cambian de ubicación, habrá que local
 
 Actualización posterior a esta revisión inicial: consultar [AUDITORIA_DOCKER.md](AUDITORIA_DOCKER.md) para el Dockerfile, la exclusión de archivos locales, la configuración JWT por entorno y el build incorporado al workflow. La tabla siguiente conserva el estado inicial de E1; no representa el estado actual de esta rama.
 
+El bloque siguiente está registrado en [AUDITORIA_COMPOSE.md](AUDITORIA_COMPOSE.md): orquestación local de API/MySQL con inicialización por Alembic, volumen, red y healthchecks. El CI del bloque Docker ya se verificó; la nueva auditoría Compose en CI y los bloques de seguridad y despliegue automático siguen pendientes.
+
 Cada indicador vale 20% de la E2. La evaluación completa tiene una ponderación de 45% en la asignatura, según la primera página de la pauta.
 
 | Indicador | Exigencia confirmada | Estado local observado | Trabajo pendiente |

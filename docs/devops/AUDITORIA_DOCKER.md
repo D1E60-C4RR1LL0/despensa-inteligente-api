@@ -111,8 +111,10 @@ sha256:6a0e06f5ba0b373d051aabd3fffb9b873f27f9a2a3a14bcbe37dee6f0e3bbc70
 
 La etiqueta de Python mantiene la línea 3.12 y Bookworm, pero admite nuevas versiones de parche. Algunas dependencias transitivas tampoco están fijadas en un lockfile completo; estos identificadores documentan lo realmente probado, sin afirmar que cualquier reconstrucción futura genere bytes idénticos.
 
-## CI y evidencia pendiente
+## CI verificado y continuidad
 
 El workflow conserva las pruebas y agrega el job `imagen` con `needs: pruebas`. Si las pruebas fallan, no se construye la imagen. El build utiliza `inventory-api:${{ github.sha }}` para relacionarlo con la ejecución. Los permisos del workflow son `contents: read`.
 
-Se verificaron localmente la sintaxis YAML, la dependencia entre jobs y la construcción efectiva del Dockerfile. Falta subir la rama y abrir su PR a `develop` para comprobar los dos jobs en GitHub Actions. Este documento no acredita todavía ese resultado remoto ni un despliegue automático. La imagen local y las imágenes base descargadas permanecen en Docker; los recursos temporales de prueba se eliminaron.
+Se verificaron localmente la sintaxis YAML, la dependencia entre jobs y la construcción efectiva del Dockerfile. Posteriormente pasaron los jobs `pruebas` e `imagen` del [PR #6](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/pull/6) en la [ejecución 40601302469](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40601302469), correspondiente a `30644b2b727ed2af13b8e5434ab1b0049ba16376`.
+
+El PR se integró en `develop` el 27 de octubre de 2026 mediante el commit `c6d57d0ad19b3753703f59ef34d85716de370ee8`. Su [CI posterior al merge](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40621549512) también terminó correctamente. La rama `feature/e2-compose` parte de ese commit; la nueva comprobación Compose añadida al workflow se documenta en [AUDITORIA_COMPOSE.md](AUDITORIA_COMPOSE.md) y queda pendiente de ejecución remota. La imagen local y las imágenes base descargadas permanecen en Docker; los recursos temporales de prueba se eliminaron.
