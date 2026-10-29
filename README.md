@@ -31,6 +31,7 @@ Además, esta entrega incorpora un flujo de trabajo basado en **Git**, integraci
 - [Instalación](#instalación)
 - [Ejecución con Docker](#ejecución-con-docker)
 - [Orquestación con Docker Compose](#orquestación-con-docker-compose)
+- [Despliegue automático simulado](#despliegue-automático-simulado)
 - [Seguridad del pipeline](#seguridad-del-pipeline)
 - [Documentación de la API](#documentación-de-la-api)
 - [Estado del proyecto](#estado-del-proyecto)
@@ -483,6 +484,7 @@ on:
   push:
     branches:
       - develop
+      - main
 
   pull_request:
     branches:
@@ -492,45 +494,23 @@ on:
 
 ## Flujo del pipeline
 
-```text
-Cambio en el repositorio
-          |
-          v
-    GitHub Actions
-          |
-          v
-  Descargar repositorio
-          |
-          v
-   Configurar Python 3.12
-          |
-          v
- Instalar dependencias
-          |
-          v
-Configurar entorno de pruebas
-          |
-          v
-       Ejecutar pytest
-          |
-          v
-    Verificar seguridad
-          |
-          v
-    Construir imagen Docker
-          |
-          v
-    Verificar Compose
-          |
-          v
-   Resultado del pipeline
+```mermaid
+flowchart TD
+    cambio[Push o Pull Request] --> pruebas[PyTest]
+    cambio --> seguridad[Snyk Code y dependencias]
+    pruebas --> imagen[Build y auditoría Compose]
+    seguridad --> imagen
+    imagen --> artefacto[Imagen validada e ID]
+    artefacto --> despliegue[Despliegue Compose en otro runner]
+    despliegue --> validacion[Validación HTTP y MySQL]
+    validacion --> reporte[Reporte de trazabilidad y limpieza]
 ```
 
 ## Rol de GitHub Actions dentro de CI/CD
 
-GitHub Actions se utiliza en esta entrega como herramienta de **Integración Continua (CI)**.
+GitHub Actions ejecuta la **integración continua** y el **despliegue automático en un entorno simulado**.
 
-Cada push sobre `develop` y cada Pull Request dirigido hacia `develop` o `main` activa el workflow.
+Cada push sobre `develop` o `main` y cada Pull Request dirigido hacia esas ramas activa el workflow. Los PR usan el ambiente `revision-simulada`; los push a `develop` y `main` usan `staging-simulado` y `produccion-simulada`, respectivamente.
 
 El pipeline permite:
 
@@ -541,19 +521,19 @@ El pipeline permite:
 - Ejecutar la suite de pruebas automatizadas.
 - Construir la imagen con la etiqueta `inventory-api:<SHA de la ejecución>`, mediante un job que depende de las pruebas y los análisis de seguridad.
 - Verificar con Compose el arranque, la persistencia y el bloqueo ante una migración fallida, usando recursos temporales.
+- Transferir la imagen validada a otro runner y desplegarla con Compose, comprobando identidad y funcionamiento de la API.
+- Guardar un informe con commit, ejecución, imagen, comprobaciones y limpieza.
 - Informar el resultado del proceso.
 
 De esta manera, la validación del código no depende únicamente de una revisión manual antes de la integración.
 
-El job `pruebas` instala `requirements-dev.txt`; `seguridad` ejecuta Snyk Code y el análisis de dependencias. El job `imagen` espera que ambos aprueben, construye el Dockerfile y ejecuta `scripts/audit_compose.py --image inventory-api:${{ github.sha }}` con permisos `contents: read`. La auditoría utiliza esa imagen sin reconstruirla y comprueba su identificador en los contenedores de API y migraciones. El primer CI con Snyk detectó una incidencia crítica de certifi y bloqueó la imagen; tras corregirla, el [CI aprobó los tres jobs](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40628304613). La imagen no se publica todavía en un registry y el stack de auditoría se elimina al terminar: es una prueba de integración, no un entorno desplegado permanente.
+El job `pruebas` instala `requirements-dev.txt`; `seguridad` ejecuta Snyk Code y el análisis de dependencias. El job `imagen` espera que ambos aprueben, construye el Dockerfile y ejecuta `scripts/audit_compose.py` sobre la imagen con SHA, sin reconstruirla. El job `despliegue` recibe esa imagen mediante un artefacto del mismo workflow, verifica su ID y revisión OCI y la utiliza con `--no-build` en un nuevo proyecto Compose. El workflow mantiene permisos `contents: read`.
+
+El primer CI con Snyk bloqueó la imagen por una incidencia crítica de certifi. Tras corregirla, el bloque de seguridad pasó en PR y en el [merge a develop](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40871513844). La [auditoría de despliegue](docs/devops/AUDITORIA_DESPLIEGUE.md) distingue esas comprobaciones anteriores de la evidencia del nuevo job.
 
 ### CI y CD en este proyecto
 
-La implementación realizada se concentra principalmente en **Integración Continua (CI)**.
-
-La automatización valida los cambios mediante pruebas antes de su integración en las ramas principales.
-
-La publicación de la versión estable se realiza mediante GitHub Releases. En esta entrega no se implementa un despliegue automático hacia un entorno productivo, por lo que no se presenta como una implementación completa de Continuous Deployment (CD).
+CI valida pruebas, seguridad e imagen; CD despliega automáticamente esa imagen en el ambiente simulado que corresponde al evento. El despliegue comprueba registro, login y escritura/lectura en MySQL antes de retirar sus recursos. Es un entorno temporal dentro del runner, admitido por la pauta E2; sus comprobaciones y resultados quedan registrados. La publicación de versiones estables mediante GitHub Releases se mantiene como parte del flujo de entrega.
 
 ---
 
@@ -617,7 +597,7 @@ Las pruebas cubren:
 
 ### Estado actual
 
-La E1 cerró con **49 pruebas automatizadas exitosas**. Tras las pruebas de migraciones, configuración y autorización del registro público, la suite local tiene **61 pruebas aprobadas**. Las evidencias están en las auditorías de [arranque](docs/devops/AUDITORIA_ARRANQUE.md), [Docker](docs/devops/AUDITORIA_DOCKER.md), [Compose](docs/devops/AUDITORIA_COMPOSE.md) y [seguridad](docs/devops/AUDITORIA_SEGURIDAD.md).
+La E1 cerró con **49 pruebas automatizadas exitosas**. Tras las pruebas de migraciones, configuración, autorización e identidad del despliegue, la suite local tiene **63 pruebas aprobadas**. Las evidencias están en las auditorías de [arranque](docs/devops/AUDITORIA_ARRANQUE.md), [Docker](docs/devops/AUDITORIA_DOCKER.md), [Compose](docs/devops/AUDITORIA_COMPOSE.md), [seguridad](docs/devops/AUDITORIA_SEGURIDAD.md) y [despliegue](docs/devops/AUDITORIA_DESPLIEGUE.md).
 
 Las mismas pruebas se ejecutan automáticamente mediante GitHub Actions.
 
@@ -834,6 +814,18 @@ El script usa un proyecto, credenciales, puerto y volumen propios. Elimina exclu
 
 ---
 
+# Despliegue automático simulado
+
+Después de las puertas de pruebas y seguridad, `imagen` construye y audita `inventory-api:<SHA>`. Exporta esa imagen a un tar y publica su ID como output. El job `despliegue` descarga el tar del mismo workflow, carga la imagen y ejecuta `scripts/deploy_simulated.py`. El script rechaza una imagen o revisión distintas antes de crear recursos.
+
+El entorno contiene la API, MySQL y el servicio Alembic del Compose existente. Usa credenciales generadas, un proyecto aleatorio y un puerto disponible en loopback. Comprueba salud, migraciones, OpenAPI, registro, login y creación/lectura de una categoría en MySQL. Al terminar elimina exclusivamente los recursos de esa ejecución; el resultado incorpora la limpieza. La URL solo existe dentro del runner durante el job.
+
+La trazabilidad relaciona PR/commit, evento y rama, ejecución de Actions, etiqueta e ID de imagen y resultados funcionales en `deployment/report.json`. En PR se registra el commit de integración temporal; en push, el commit integrado. El informe se conserva en el artefacto `deployment-<SHA>` durante 30 días y se resume en Actions. La imagen de transferencia se conserva 1 día. El reporte no contiene contraseñas, JWT ni archivos `.env`.
+
+Los resultados locales y remotos, junto con las fuentes de clase y los pendientes de IE4, se registran en [AUDITORIA_DESPLIEGUE.md](docs/devops/AUDITORIA_DESPLIEGUE.md). Las retenciones y la transferencia de imágenes son decisiones de este proyecto para demostrar el requisito de trazabilidad.
+
+---
+
 # Seguridad del pipeline
 
 Dependabot tiene alertas y actualizaciones de seguridad activadas en GitHub. `.github/dependabot.yml` configura revisiones semanales de pip y las acciones, con PR de versiones hacia `develop`. El archivo debe llegar a la rama predeterminada `main` para que GitHub active esa planificación; las alertas y actualizaciones de seguridad siguen la rama predeterminada.
@@ -882,6 +874,8 @@ http://localhost:8000/redoc
 | Imagen Docker de la API | ✅ Validada localmente con MySQL temporal |
 | Construcción Docker en CI | ✅ Validada en el PR #6 y su merge en develop |
 | Orquestación con Compose | ✅ Validada localmente y en CI del PR #7 y su merge |
+| Seguridad Snyk | ✅ Integrada en develop y verificada tras el merge del PR #12 |
+| Despliegue simulado | Validado localmente; nuevo job y transferencia pendientes de evidencia remota |
 
 ---
 
@@ -889,7 +883,7 @@ http://localhost:8000/redoc
 
 La referencia de trabajo para la segunda entrega de Ingeniería DevOps está en la [guía maestra E2](docs/devops/GUIA_MAESTRA_E2_DOY0101.md). La [revisión inicial](docs/devops/REVISION_E2.md) contrasta esa guía con la pauta oficial y el repositorio, registra las pruebas ejecutadas y separa requisitos, recomendaciones y puntos por verificar.
 
-Las auditorías de [arranque](docs/devops/AUDITORIA_ARRANQUE.md), [Docker](docs/devops/AUDITORIA_DOCKER.md), [Compose](docs/devops/AUDITORIA_COMPOSE.md) y [seguridad](docs/devops/AUDITORIA_SEGURIDAD.md) registran la evolución y la evidencia de cada bloque. Siguen pendientes integrar el bloque de seguridad, activar la planificación Dependabot al entregar en main y el despliegue automático con su trazabilidad.
+Las auditorías de [arranque](docs/devops/AUDITORIA_ARRANQUE.md), [Docker](docs/devops/AUDITORIA_DOCKER.md), [Compose](docs/devops/AUDITORIA_COMPOSE.md), [seguridad](docs/devops/AUDITORIA_SEGURIDAD.md) y [despliegue](docs/devops/AUDITORIA_DESPLIEGUE.md) registran la evolución y la evidencia de cada bloque. Seguridad ya está integrada en develop. Siguen pendientes verificar e integrar el despliegue en CI/CD, activar la planificación Dependabot al entregar en main y revisar calidad, escalabilidad y gobernanza frente a la rúbrica.
 
 ## Licencia
 
