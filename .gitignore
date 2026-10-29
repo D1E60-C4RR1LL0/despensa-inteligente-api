@@ -221,6 +221,7 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
+.security-reports/
 cover/
 
 # Translations

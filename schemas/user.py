@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
+from typing import Literal, Optional
 
 class UserBase(BaseModel):
     username: str
@@ -13,6 +13,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
+    role: Literal["user"] = "user"
 
 class UserInDB(UserBase):
     hashed_password: str
