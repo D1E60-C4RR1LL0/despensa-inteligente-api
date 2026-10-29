@@ -875,7 +875,7 @@ http://localhost:8000/redoc
 | Construcción Docker en CI | ✅ Validada en el PR #6 y su merge en develop |
 | Orquestación con Compose | ✅ Validada localmente y en CI del PR #7 y su merge |
 | Seguridad Snyk | ✅ Integrada en develop y verificada tras el merge del PR #12 |
-| Despliegue simulado | Validado localmente; nuevo job y transferencia pendientes de evidencia remota |
+| Despliegue simulado | ✅ Validado localmente y en CI/CD del PR #13; pendiente de integrar y verificar por push |
 
 ---
 
@@ -883,7 +883,7 @@ http://localhost:8000/redoc
 
 La referencia de trabajo para la segunda entrega de Ingeniería DevOps está en la [guía maestra E2](docs/devops/GUIA_MAESTRA_E2_DOY0101.md). La [revisión inicial](docs/devops/REVISION_E2.md) contrasta esa guía con la pauta oficial y el repositorio, registra las pruebas ejecutadas y separa requisitos, recomendaciones y puntos por verificar.
 
-Las auditorías de [arranque](docs/devops/AUDITORIA_ARRANQUE.md), [Docker](docs/devops/AUDITORIA_DOCKER.md), [Compose](docs/devops/AUDITORIA_COMPOSE.md), [seguridad](docs/devops/AUDITORIA_SEGURIDAD.md) y [despliegue](docs/devops/AUDITORIA_DESPLIEGUE.md) registran la evolución y la evidencia de cada bloque. Seguridad ya está integrada en develop. Siguen pendientes verificar e integrar el despliegue en CI/CD, activar la planificación Dependabot al entregar en main y revisar calidad, escalabilidad y gobernanza frente a la rúbrica.
+Las auditorías de [arranque](docs/devops/AUDITORIA_ARRANQUE.md), [Docker](docs/devops/AUDITORIA_DOCKER.md), [Compose](docs/devops/AUDITORIA_COMPOSE.md), [seguridad](docs/devops/AUDITORIA_SEGURIDAD.md) y [despliegue](docs/devops/AUDITORIA_DESPLIEGUE.md) registran la evolución y la evidencia de cada bloque. Seguridad ya está integrada en develop. El [PR #13 aprobó los cuatro jobs de CI/CD](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40872793573) y su reporte fue descargado y verificado. Siguen pendientes integrar el despliegue y verificarlo por push, activar la planificación Dependabot al entregar en main y revisar calidad, escalabilidad y gobernanza frente a la rúbrica.
 
 ## Licencia
 

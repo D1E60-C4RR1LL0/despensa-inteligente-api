@@ -23,7 +23,7 @@ El bloque siguiente está registrado en [AUDITORIA_COMPOSE.md](AUDITORIA_COMPOSE
 
 Cada indicador vale 20% de la E2. La evaluación completa tiene una ponderación de 45% en la asignatura, según la primera página de la pauta.
 
-Actualización del 29 de octubre: el bloque de seguridad se integró mediante el PR #12 y su [CI de merge](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40871513844) aprobó antes de crear `feature/e2-despliegue`. La [auditoría de despliegue](AUDITORIA_DESPLIEGUE.md) registra el nuevo job, la transferencia de la imagen validada, la comprobación funcional y la trazabilidad. El despliegue local y las 63 pruebas aprobaron; falta verificar el nuevo recorrido en GitHub e integrarlo. Esto no declara completos los aspectos pendientes de escalabilidad, gobernanza y políticas de calidad.
+Actualización del 29 de octubre: el bloque de seguridad se integró mediante el PR #12 y su [CI de merge](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40871513844) aprobó antes de crear `feature/e2-despliegue`. La [auditoría de despliegue](AUDITORIA_DESPLIEGUE.md) registra el nuevo job, la transferencia de la imagen validada, la comprobación funcional y la trazabilidad. El despliegue local y las 63 pruebas aprobaron. El [CI/CD del PR #13](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40872793573) aprobó sus cuatro jobs y se descargó/verificó el reporte de despliegue. Falta integrar este bloque y comprobar la ejecución por push. Esto no declara completos los aspectos pendientes de escalabilidad, gobernanza y políticas de calidad.
 
 | Indicador | Exigencia confirmada | Estado local observado | Trabajo pendiente |
 |---|---|---|---|

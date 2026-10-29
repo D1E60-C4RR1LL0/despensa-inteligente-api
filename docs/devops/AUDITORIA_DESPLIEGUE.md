@@ -54,7 +54,19 @@ La cadena verificable es: PR/commit → ejecución de Actions → pruebas y segu
 - Sintaxis YAML: leída correctamente; eventos push a `develop`/`main` y cuatro jobs declarados.
 - Imagen local de revisión: construida con ID `sha256:1ad7e742600b0d1e3ff4b8eb2c17d2b32e9da4c89f6a5d361c7983ea0e94e7d5`. Su etiqueta OCI corresponde al código de API de la base `3fc4f753a248ce04c2f0aa9e6f74f7b871bf31ee`, sin cambios funcionales de API en este bloque.
 - Despliegue local: correcto, proyecto `inventory-deploy-9e25ae46a69b`, con identidad de imagen/commit, migraciones, salud, OpenAPI, registro, login y escritura/lectura en MySQL aprobados. El reporte informó `status: success` y `cleanup: success`; quedó en `deployment/local-report.json`, ignorado por Git. Sus credenciales temporales y recursos propios se retiraron.
-- Transferencia entre runners y ejecución del nuevo job en GitHub: pendientes de abrir el PR y comprobar sus resultados. La configuración por sí sola no acredita esos resultados.
+- Transferencia entre runners y ejecución del nuevo job en GitHub: verificadas en el PR #13, según la evidencia de la sección siguiente.
+
+## Primera ejecución remota verificada
+
+El [PR #13](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/pull/13) se abrió en borrador hacia `develop`. Su [CI/CD 40872793573](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40872793573) terminó con los cuatro jobs aprobados: `pruebas`, `seguridad`, `imagen` y `despliegue`.
+
+La rama contenía `f24f6a27683d4fcd2ece8252c93c4a4da740f727`; el commit de integración temporal probado por GitHub fue `d38e6c4a12ef258a1a48925050005d64db1c6963`, registrado en la etiqueta y en el reporte. El ambiente fue `revision-simulada`, con ref `refs/pull/13/merge` y evento `pull_request`.
+
+La imagen desplegada fue `sha256:2aef4044842e5c00c0c327e9494330c1f9b01c2adda780fe2be4adbae76a606e`. El segundo runner descargó y cargó el [artefacto de imagen 12896243556](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40872793573/artifacts/12896243556) del mismo workflow. El digest ZIP de esa transferencia fue `sha256:a53b70277413c262281fc73acd5d6c0d84c5d4838b133fe40a99feed6c581af0`; su vencimiento indicado por GitHub es el 30 de octubre de 2026.
+
+Se descargó el [reporte de despliegue 12896278569](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40872793573/artifacts/12896278569). Se verificaron su digest ZIP `sha256:6fbc89202a4bb760671c1ae28738fd4db4138df98e407f417573cba1d3682fb8` y el JSON `report.json`: `status: success`, `cleanup: success`, ID esperado igual al ID desplegado y las ocho comprobaciones en `true`. El proyecto propio fue `inventory-deploy-92b2add0b104`. GitHub indica vencimiento del reporte el 28 de noviembre de 2026.
+
+Esta evidencia acredita la transferencia, el despliegue funcional y la limpieza en un PR. La posterior actualización documental conserva ese recorrido como referencia del código revisado; no se atribuye a esta ejecución el evento push ni el ambiente `staging-simulado`.
 
 ## Pendientes de la entrega
 
