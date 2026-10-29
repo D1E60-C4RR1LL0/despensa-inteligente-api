@@ -37,6 +37,7 @@ Además, esta entrega incorpora un flujo de trabajo basado en **Git**, integraci
 - [Documentación de la API](#documentación-de-la-api)
 - [Estado del proyecto](#estado-del-proyecto)
 - [Planificación de la Evaluación 2](#planificación-de-la-evaluación-2)
+- [Matriz y pendientes de entrega E2](docs/devops/MATRIZ_EVIDENCIAS_E2.md)
 
 ---
 
@@ -339,10 +340,9 @@ git push -u origin feature/<nombre>
 
 git checkout develop
 git pull origin develop
-
-git merge <rama>
-git push origin develop
 ```
+
+La integración se realiza desde el Pull Request en GitHub una vez aprobados los checks obligatorios. `develop` y `main` están protegidas; el último `pull` del ejemplo se ejecuta después del merge del PR.
 
 La trazabilidad del código se mantiene mediante el historial de commits, las ramas, los Pull Requests, los merges y las releases registrados en GitHub.
 
@@ -889,6 +889,10 @@ http://localhost:8000/redoc
 | Orquestación con Compose | ✅ Validada localmente y en CI del PR #7 y su merge |
 | Seguridad Snyk | ✅ Integrada en develop y verificada tras el merge del PR #12 |
 | Despliegue simulado | ✅ Integrado y verificado por push a develop tras el PR #13 |
+| Política de calidad y protección de ramas | ✅ Verificadas tras el PR #14 y releídas para el cierre |
+| Límites y medición de recursos | ✅ Integrados mediante PR #15; cuotas y funcionamiento verificados en CI de develop |
+| Dependabot programado | Configurado; pendiente de activación/verificación al llegar a main |
+| Producción simulada E2 en main | Configurada; ejecución pendiente del PR de entrega |
 
 ---
 
@@ -896,7 +900,9 @@ http://localhost:8000/redoc
 
 La referencia de trabajo para la segunda entrega de Ingeniería DevOps está en la [guía maestra E2](docs/devops/GUIA_MAESTRA_E2_DOY0101.md). La [revisión inicial](docs/devops/REVISION_E2.md) contrasta esa guía con la pauta oficial y el repositorio, registra las pruebas ejecutadas y separa requisitos, recomendaciones y puntos por verificar.
 
-Las auditorías de [arranque](docs/devops/AUDITORIA_ARRANQUE.md), [Docker](docs/devops/AUDITORIA_DOCKER.md), [Compose](docs/devops/AUDITORIA_COMPOSE.md), [seguridad](docs/devops/AUDITORIA_SEGURIDAD.md), [despliegue](docs/devops/AUDITORIA_DESPLIEGUE.md) y [calidad/gobernanza](docs/devops/AUDITORIA_CALIDAD_GOBERNANZA.md) registran la evolución y la evidencia de cada bloque. Seguridad y despliegue ya están integrados en develop; el [CI/CD por push del PR #13](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40877704856) aprobó sus cuatro jobs y se verificó su reporte de staging. El estado de integración y los checks de calidad/gobernanza se consultan en el [PR #14](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/pull/14). El bloque de [recursos](docs/devops/AUDITORIA_RECURSOS.md) incorpora límites y medición funcional local; sus checks remotos e integración deben consultarse en el PR de `feature/e2-recursos-compose`. Siguen pendientes el cierre de evidencias y la activación de la planificación Dependabot al entregar en main. La orquestación demostrada corresponde a un host; no se acredita autoscaling.
+La [matriz de evidencias E2](docs/devops/MATRIZ_EVIDENCIAS_E2.md) reúne IE1–IE5, fuentes de clase, archivos, ejecuciones y pendientes. Su base es `develop` en `67b6ab1`, después de integrar los bloques de seguridad, despliegue, calidad/gobernanza y recursos. El [CI/CD por push 40937752277](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40937752277) aprobó los cuatro jobs; sus reportes verificaron 123 pruebas, 92,74% de cobertura de API, Snyk sobre el umbral y staging con límites efectivos y limpieza. Las auditorías de cada bloque conservan su evidencia histórica; la matriz distingue ese historial del estado de cierre.
+
+Quedan el informe y las reflexiones propias del equipo, el PR de entrega a `main`, la comprobación de producción simulada y de Dependabot programado, y la entrega por los canales indicados por el docente. La orquestación demostrada corresponde a un host; no se acredita autoscaling ni se garantiza una calificación con los resultados de CI.
 
 ## Licencia
 
