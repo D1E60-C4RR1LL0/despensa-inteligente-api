@@ -70,4 +70,6 @@ Esta evidencia acredita la transferencia, el despliegue funcional y la limpieza 
 
 ## Pendientes de la entrega
 
-La integración de este bloque y la ejecución automática por push deben verificarse antes de declarar completado su recorrido hacia la rama de entrega. También siguen pendientes la activación de la planificación Dependabot al llegar a `main`, la revisión de las políticas de calidad y los parámetros de escalabilidad/gobernanza de IE3 e IE5. Este bloque no declara un 100% global de la rúbrica.
+El PR #13 se integró en `develop` mediante `1a366540083224e4eddcca4d60fbef2b232da9a9`. Su [CI/CD por push](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40877704856) aprobó los cuatro jobs. Se descargó y verificó el [reporte de staging 12899850116](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40877704856/artifacts/12899850116): evento `push`, ref `refs/heads/develop`, ambiente `staging-simulado`, ocho comprobaciones verdaderas y limpieza correcta. La imagen esperada y desplegada fue `sha256:aacc3cf3428d9041a41127f704f7275b2366f0efa0fd3387c53a73a2f85f003d`.
+
+La política de pruebas y las protecciones posteriores se registran en [AUDITORIA_CALIDAD_GOBERNANZA.md](AUDITORIA_CALIDAD_GOBERNANZA.md). Siguen pendientes la activación de la planificación Dependabot al llegar a `main` y los parámetros de recursos/escalabilidad de IE3 e IE5. Este bloque no declara un 100% global de la rúbrica.

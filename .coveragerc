@@ -1,0 +1,14 @@
+[run]
+source =
+    app
+    config
+    models
+    routes
+    schemas
+    utils
+data_file = .quality-reports/.coverage
+
+[report]
+fail_under = 80
+precision = 2
+show_missing = True

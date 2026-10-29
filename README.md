@@ -33,6 +33,7 @@ Además, esta entrega incorpora un flujo de trabajo basado en **Git**, integraci
 - [Orquestación con Docker Compose](#orquestación-con-docker-compose)
 - [Despliegue automático simulado](#despliegue-automático-simulado)
 - [Seguridad del pipeline](#seguridad-del-pipeline)
+- [Política de calidad y gobernanza](#política-de-calidad-y-gobernanza)
 - [Documentación de la API](#documentación-de-la-api)
 - [Estado del proyecto](#estado-del-proyecto)
 - [Planificación de la Evaluación 2](#planificación-de-la-evaluación-2)
@@ -597,7 +598,7 @@ Las pruebas cubren:
 
 ### Estado actual
 
-La E1 cerró con **49 pruebas automatizadas exitosas**. Tras las pruebas de migraciones, configuración, autorización e identidad del despliegue, la suite local tiene **63 pruebas aprobadas**. Las evidencias están en las auditorías de [arranque](docs/devops/AUDITORIA_ARRANQUE.md), [Docker](docs/devops/AUDITORIA_DOCKER.md), [Compose](docs/devops/AUDITORIA_COMPOSE.md), [seguridad](docs/devops/AUDITORIA_SEGURIDAD.md) y [despliegue](docs/devops/AUDITORIA_DESPLIEGUE.md).
+La E1 cerró con **49 pruebas automatizadas exitosas**. Con los casos críticos de inventario y JWT, la suite local tiene **109 pruebas aprobadas** y **92,74% de cobertura global de sentencias de la API**. Incluye 9 comprobaciones aisladas y 100 de integración/configuración; no se presenta el total como pruebas unitarias puras. La [auditoría de calidad y gobernanza](docs/devops/AUDITORIA_CALIDAD_GOBERNANZA.md) registra la medición, su alcance y las pruebas de bloqueo. Las auditorías anteriores conservan sus resultados históricos.
 
 Las mismas pruebas se ejecutan automáticamente mediante GitHub Actions.
 
@@ -838,6 +839,16 @@ El registro público acepta únicamente el rol `user`, que también es el valor 
 
 ---
 
+# Política de calidad y gobernanza
+
+La [política del proyecto](docs/devops/POLITICA_CALIDAD.md) exige aprobar todas las pruebas y alcanzar al menos 80% de cobertura global de sentencias de la API. El valor sigue el ejemplo de semana 8 y es una decisión del proyecto; la pauta no fija un porcentaje. `.coveragerc` define el alcance y el umbral; CI ejecuta PyTest con cobertura y conserva JUnit, XML y HTML durante 30 días, incluso ante fallos cuando se generan reportes.
+
+La suite distingue comprobaciones aisladas de JWT/configuración/identidad y pruebas de integración de API/BD, migraciones y contenedores. Su total no se presenta como cantidad de pruebas unitarias puras. La [auditoría de calidad y gobernanza](docs/devops/AUDITORIA_CALIDAD_GOBERNANZA.md) registra los casos críticos, resultados y demostraciones de bloqueo.
+
+`main` y `develop` tienen protección configurada para exigir PR, rama actualizada, conversaciones resueltas y los cuatro checks aprobados. Las reglas se aplican también a administradores y deshabilitan force push y borrado de esas ramas. Se requieren cero aprobaciones externas obligatorias, manteniendo operable el flujo del repositorio; los checks no sustituyen una revisión independiente. [branch-protection.json](docs/devops/branch-protection.json) conserva la configuración aplicada mediante la API, no un mecanismo de aplicación automática.
+
+---
+
 # Documentación de la API
 
 Una vez iniciada la aplicación, se puede acceder a la documentación interactiva.
@@ -875,7 +886,7 @@ http://localhost:8000/redoc
 | Construcción Docker en CI | ✅ Validada en el PR #6 y su merge en develop |
 | Orquestación con Compose | ✅ Validada localmente y en CI del PR #7 y su merge |
 | Seguridad Snyk | ✅ Integrada en develop y verificada tras el merge del PR #12 |
-| Despliegue simulado | ✅ Validado localmente y en CI/CD del PR #13; pendiente de integrar y verificar por push |
+| Despliegue simulado | ✅ Integrado y verificado por push a develop tras el PR #13 |
 
 ---
 
@@ -883,7 +894,7 @@ http://localhost:8000/redoc
 
 La referencia de trabajo para la segunda entrega de Ingeniería DevOps está en la [guía maestra E2](docs/devops/GUIA_MAESTRA_E2_DOY0101.md). La [revisión inicial](docs/devops/REVISION_E2.md) contrasta esa guía con la pauta oficial y el repositorio, registra las pruebas ejecutadas y separa requisitos, recomendaciones y puntos por verificar.
 
-Las auditorías de [arranque](docs/devops/AUDITORIA_ARRANQUE.md), [Docker](docs/devops/AUDITORIA_DOCKER.md), [Compose](docs/devops/AUDITORIA_COMPOSE.md), [seguridad](docs/devops/AUDITORIA_SEGURIDAD.md) y [despliegue](docs/devops/AUDITORIA_DESPLIEGUE.md) registran la evolución y la evidencia de cada bloque. Seguridad ya está integrada en develop. El [PR #13 aprobó los cuatro jobs de CI/CD](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40872793573) y su reporte fue descargado y verificado. Siguen pendientes integrar el despliegue y verificarlo por push, activar la planificación Dependabot al entregar en main y revisar calidad, escalabilidad y gobernanza frente a la rúbrica.
+Las auditorías de [arranque](docs/devops/AUDITORIA_ARRANQUE.md), [Docker](docs/devops/AUDITORIA_DOCKER.md), [Compose](docs/devops/AUDITORIA_COMPOSE.md), [seguridad](docs/devops/AUDITORIA_SEGURIDAD.md), [despliegue](docs/devops/AUDITORIA_DESPLIEGUE.md) y [calidad/gobernanza](docs/devops/AUDITORIA_CALIDAD_GOBERNANZA.md) registran la evolución y la evidencia de cada bloque. Seguridad y despliegue ya están integrados en develop; el [CI/CD por push del PR #13](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40877704856) aprobó sus cuatro jobs y se verificó su reporte de staging. El estado de integración y los checks de calidad/gobernanza se consultan en el [PR #14](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/pull/14). Siguen pendientes recursos/escalabilidad y la activación de la planificación Dependabot al entregar en main.
 
 ## Licencia
 

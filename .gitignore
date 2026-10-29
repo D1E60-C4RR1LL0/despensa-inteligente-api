@@ -222,6 +222,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 .security-reports/
+.quality-reports/
 image-transfer/
 deployment/
 cover/
