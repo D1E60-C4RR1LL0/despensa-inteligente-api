@@ -51,6 +51,8 @@ Suite local tras el cambio: **123 aprobaciones**, cero errores/fallos, **92,74%*
 
 ## Repetición y evidencia remota
 
+Actualización de integración: el [PR #15](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/pull/15) se integró en `develop` como `67b6ab1498caeebd31a1c08f500f7bb9206d879f`. Su [push 40937752277](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40937752277) aprobó los cuatro jobs. Se verificaron los ZIP de calidad y despliegue: 123 aprobaciones, cobertura 92,74%, staging con nueve checks verdaderos, cuotas exactas, 40/40 consultas, sin OOM/reinicios observados y limpieza correcta. MySQL/API tuvieron 7/2 muestras, máximos muestreados 456,70/70,95 MiB; migraciones terminó entre muestras con salida 0. La [matriz de cierre](MATRIZ_EVIDENCIAS_E2.md) conserva enlaces y pendientes; los párrafos siguientes describen el procedimiento y las fotografías anteriores a la integración.
+
 Después de construir una imagen con etiqueta OCI del commit que se vaya a validar, obtener su ID y ejecutar desde la raíz:
 
 ```powershell
