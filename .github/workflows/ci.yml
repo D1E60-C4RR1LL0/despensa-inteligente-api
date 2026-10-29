@@ -1,9 +1,10 @@
-name: CI
+name: CI/CD
 
 on:
   push:
     branches:
       - develop
+      - main
 
   pull_request:
     branches:
@@ -106,6 +107,10 @@ jobs:
   imagen:
     needs: [pruebas, seguridad]
     runs-on: ubuntu-latest
+    outputs:
+      image_id: ${{ steps.identidad.outputs.image_id }}
+    env:
+      API_IMAGE: inventory-api:${{ github.sha }}
 
     steps:
       - name: Descargar repositorio
@@ -117,7 +122,68 @@ jobs:
           python-version: "3.12"
 
       - name: Construir imagen Docker
-        run: docker build --tag inventory-api:${{ github.sha }} .
+        run: docker build --label "org.opencontainers.image.revision=$GITHUB_SHA" --tag "$API_IMAGE" .
 
       - name: Verificar Compose y persistencia
-        run: python scripts/audit_compose.py --image inventory-api:${{ github.sha }}
+        run: python scripts/audit_compose.py --image "$API_IMAGE"
+
+      - name: Registrar identidad y exportar imagen validada
+        id: identidad
+        run: |
+          image_id="$(docker image inspect --format '{{.Id}}' "$API_IMAGE")"
+          echo "image_id=$image_id" >> "$GITHUB_OUTPUT"
+          mkdir -p image-transfer
+          docker image save --output image-transfer/image.tar "$API_IMAGE"
+
+      - name: Transferir imagen al job de despliegue
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: api-image-${{ github.sha }}
+          path: image-transfer/image.tar
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
+
+  despliegue:
+    needs: imagen
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    environment: ${{ github.event_name == 'pull_request' && 'revision-simulada' || github.ref_name == 'main' && 'produccion-simulada' || 'staging-simulado' }}
+    env:
+      API_IMAGE: inventory-api:${{ github.sha }}
+      EXPECTED_IMAGE_ID: ${{ needs.imagen.outputs.image_id }}
+      DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'revision-simulada' || github.ref_name == 'main' && 'produccion-simulada' || 'staging-simulado' }}
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Configurar Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+
+      - name: Recibir la imagen del mismo workflow
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: api-image-${{ github.sha }}
+          path: image-transfer
+
+      - name: Cargar imagen sin reconstruir
+        run: docker image load --input image-transfer/image.tar
+
+      - name: Desplegar y validar API en entorno simulado
+        run: |
+          python scripts/deploy_simulated.py --image "$API_IMAGE" \
+            --expected-image-id "$EXPECTED_IMAGE_ID" --commit "$GITHUB_SHA" \
+            --environment "$DEPLOY_ENV" --output deployment/report.json
+
+      - name: Conservar evidencia del despliegue
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: deployment-${{ github.sha }}
+          path: deployment/report.json
+          if-no-files-found: error
+          retention-days: 30
