@@ -3,6 +3,8 @@ name: inventory-e2
 services:
   db:
     image: mysql:8.4
+    cpus: 1.0
+    mem_limit: 768m
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE:?Configurar MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER:?Configurar MYSQL_USER}
@@ -25,6 +27,8 @@ services:
   migrate:
     build: .
     image: ${API_IMAGE:-inventory-api:local}
+    cpus: 0.50
+    mem_limit: 192m
     environment:
       DATABASE_URL: ${COMPOSE_DATABASE_URL:?Configurar COMPOSE_DATABASE_URL}
     command: ["python", "-m", "alembic", "upgrade", "head"]
@@ -40,6 +44,8 @@ services:
   api:
     build: .
     image: ${API_IMAGE:-inventory-api:local}
+    cpus: 0.50
+    mem_limit: 192m
     environment:
       DATABASE_URL: ${COMPOSE_DATABASE_URL:?Configurar COMPOSE_DATABASE_URL}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:?Configurar JWT_SECRET_KEY}

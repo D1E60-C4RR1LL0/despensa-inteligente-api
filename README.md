@@ -598,7 +598,7 @@ Las pruebas cubren:
 
 ### Estado actual
 
-La E1 cerró con **49 pruebas automatizadas exitosas**. Con los casos críticos de inventario y JWT, la suite local tiene **109 pruebas aprobadas** y **92,74% de cobertura global de sentencias de la API**. Incluye 9 comprobaciones aisladas y 100 de integración/configuración; no se presenta el total como pruebas unitarias puras. La [auditoría de calidad y gobernanza](docs/devops/AUDITORIA_CALIDAD_GOBERNANZA.md) registra la medición, su alcance y las pruebas de bloqueo. Las auditorías anteriores conservan sus resultados históricos.
+La E1 cerró con **49 pruebas automatizadas exitosas**. Con los casos críticos de inventario y JWT, la suite local tiene **123 pruebas aprobadas** y **92,74% de cobertura global de sentencias de la API**. Incluye 23 comprobaciones aisladas y 100 de integración/configuración; no se presenta el total como pruebas unitarias puras. La [auditoría de calidad y gobernanza](docs/devops/AUDITORIA_CALIDAD_GOBERNANZA.md) registra la medición, su alcance y las pruebas de bloqueo. Las auditorías anteriores conservan sus resultados históricos.
 
 Las mismas pruebas se ejecutan automáticamente mediante GitHub Actions.
 
@@ -779,6 +779,8 @@ Para conectar la imagen a MySQL, proporcionar una URL válida desde el contenedo
 
 El archivo `docker-compose.yml` define MySQL (`db`), una tarea breve de migración (`migrate`) y la API (`api`). La secuencia es: MySQL saludable → migraciones completadas → API. La tarea de migración reutiliza la imagen de la API y termina con código 0; ese estado es el esperado.
 
+Compose limita MySQL a 1 CPU/768 MiB y API/migraciones a 0,5 CPU/192 MiB cada uno. La [auditoría de recursos](docs/devops/AUDITORIA_RECURSOS.md) relaciona estos presupuestos con las clases y las mediciones locales. Son decisiones iniciales del proyecto para un host.
+
 Preparar una configuración local independiente del MySQL y del `.env` existentes:
 
 ```powershell
@@ -819,7 +821,7 @@ El script usa un proyecto, credenciales, puerto y volumen propios. Elimina exclu
 
 Después de las puertas de pruebas y seguridad, `imagen` construye y audita `inventory-api:<SHA>`. Exporta esa imagen a un tar y publica su ID como output. El job `despliegue` descarga el tar del mismo workflow, carga la imagen y ejecuta `scripts/deploy_simulated.py`. El script rechaza una imagen o revisión distintas antes de crear recursos.
 
-El entorno contiene la API, MySQL y el servicio Alembic del Compose existente. Usa credenciales generadas, un proyecto aleatorio y un puerto disponible en loopback. Comprueba salud, migraciones, OpenAPI, registro, login y creación/lectura de una categoría en MySQL. Al terminar elimina exclusivamente los recursos de esa ejecución; el resultado incorpora la limpieza. La URL solo existe dentro del runner durante el job.
+El entorno contiene la API, MySQL y el servicio Alembic del Compose existente. Usa credenciales generadas, un proyecto aleatorio y un puerto disponible en loopback. Comprueba salud, migraciones, OpenAPI, registro, login y creación/lectura de una categoría en MySQL. También ejecuta 40 consultas autenticadas, muestrea consumo y comprueba que Docker aplica los límites sin OOM/reinicios observados. Al terminar elimina exclusivamente los recursos de esa ejecución; el resultado incorpora la limpieza. La URL solo existe dentro del runner durante el job.
 
 La trazabilidad relaciona PR/commit, evento y rama, ejecución de Actions, etiqueta e ID de imagen y resultados funcionales en `deployment/report.json`. En PR se registra el commit de integración temporal; en push, el commit integrado. El informe se conserva en el artefacto `deployment-<SHA>` durante 30 días y se resume en Actions. La imagen de transferencia se conserva 1 día. El reporte no contiene contraseñas, JWT ni archivos `.env`.
 
@@ -894,7 +896,7 @@ http://localhost:8000/redoc
 
 La referencia de trabajo para la segunda entrega de Ingeniería DevOps está en la [guía maestra E2](docs/devops/GUIA_MAESTRA_E2_DOY0101.md). La [revisión inicial](docs/devops/REVISION_E2.md) contrasta esa guía con la pauta oficial y el repositorio, registra las pruebas ejecutadas y separa requisitos, recomendaciones y puntos por verificar.
 
-Las auditorías de [arranque](docs/devops/AUDITORIA_ARRANQUE.md), [Docker](docs/devops/AUDITORIA_DOCKER.md), [Compose](docs/devops/AUDITORIA_COMPOSE.md), [seguridad](docs/devops/AUDITORIA_SEGURIDAD.md), [despliegue](docs/devops/AUDITORIA_DESPLIEGUE.md) y [calidad/gobernanza](docs/devops/AUDITORIA_CALIDAD_GOBERNANZA.md) registran la evolución y la evidencia de cada bloque. Seguridad y despliegue ya están integrados en develop; el [CI/CD por push del PR #13](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40877704856) aprobó sus cuatro jobs y se verificó su reporte de staging. El estado de integración y los checks de calidad/gobernanza se consultan en el [PR #14](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/pull/14). Siguen pendientes recursos/escalabilidad y la activación de la planificación Dependabot al entregar en main.
+Las auditorías de [arranque](docs/devops/AUDITORIA_ARRANQUE.md), [Docker](docs/devops/AUDITORIA_DOCKER.md), [Compose](docs/devops/AUDITORIA_COMPOSE.md), [seguridad](docs/devops/AUDITORIA_SEGURIDAD.md), [despliegue](docs/devops/AUDITORIA_DESPLIEGUE.md) y [calidad/gobernanza](docs/devops/AUDITORIA_CALIDAD_GOBERNANZA.md) registran la evolución y la evidencia de cada bloque. Seguridad y despliegue ya están integrados en develop; el [CI/CD por push del PR #13](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40877704856) aprobó sus cuatro jobs y se verificó su reporte de staging. El estado de integración y los checks de calidad/gobernanza se consultan en el [PR #14](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/pull/14). El bloque de [recursos](docs/devops/AUDITORIA_RECURSOS.md) incorpora límites y medición funcional local; sus checks remotos e integración deben consultarse en el PR de `feature/e2-recursos-compose`. Siguen pendientes el cierre de evidencias y la activación de la planificación Dependabot al entregar en main. La orquestación demostrada corresponde a un host; no se acredita autoscaling.
 
 ## Licencia
 
