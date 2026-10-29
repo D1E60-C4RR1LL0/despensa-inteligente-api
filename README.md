@@ -598,7 +598,7 @@ Las pruebas cubren:
 
 ### Estado actual
 
-La E1 cerró con **49 pruebas automatizadas exitosas**. Tras las pruebas de migraciones, configuración, autorización e identidad del despliegue, la suite local tiene **63 pruebas aprobadas**. Las evidencias están en las auditorías de [arranque](docs/devops/AUDITORIA_ARRANQUE.md), [Docker](docs/devops/AUDITORIA_DOCKER.md), [Compose](docs/devops/AUDITORIA_COMPOSE.md), [seguridad](docs/devops/AUDITORIA_SEGURIDAD.md) y [despliegue](docs/devops/AUDITORIA_DESPLIEGUE.md).
+La E1 cerró con **49 pruebas automatizadas exitosas**. Con los casos críticos de inventario y JWT, la suite local tiene **109 pruebas aprobadas** y **92,74% de cobertura global de sentencias de la API**. Incluye 9 comprobaciones aisladas y 100 de integración/configuración; no se presenta el total como pruebas unitarias puras. La [auditoría de calidad y gobernanza](docs/devops/AUDITORIA_CALIDAD_GOBERNANZA.md) registra la medición, su alcance y las pruebas de bloqueo. Las auditorías anteriores conservan sus resultados históricos.
 
 Las mismas pruebas se ejecutan automáticamente mediante GitHub Actions.
 
@@ -894,7 +894,7 @@ http://localhost:8000/redoc
 
 La referencia de trabajo para la segunda entrega de Ingeniería DevOps está en la [guía maestra E2](docs/devops/GUIA_MAESTRA_E2_DOY0101.md). La [revisión inicial](docs/devops/REVISION_E2.md) contrasta esa guía con la pauta oficial y el repositorio, registra las pruebas ejecutadas y separa requisitos, recomendaciones y puntos por verificar.
 
-Las auditorías de [arranque](docs/devops/AUDITORIA_ARRANQUE.md), [Docker](docs/devops/AUDITORIA_DOCKER.md), [Compose](docs/devops/AUDITORIA_COMPOSE.md), [seguridad](docs/devops/AUDITORIA_SEGURIDAD.md), [despliegue](docs/devops/AUDITORIA_DESPLIEGUE.md) y [calidad/gobernanza](docs/devops/AUDITORIA_CALIDAD_GOBERNANZA.md) registran la evolución y la evidencia de cada bloque. Seguridad y despliegue ya están integrados en develop; el [CI/CD por push del PR #13](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40877704856) aprobó sus cuatro jobs y se verificó su reporte de staging. El bloque de calidad/gobernanza está en validación. Siguen pendientes recursos/escalabilidad y la activación de la planificación Dependabot al entregar en main.
+Las auditorías de [arranque](docs/devops/AUDITORIA_ARRANQUE.md), [Docker](docs/devops/AUDITORIA_DOCKER.md), [Compose](docs/devops/AUDITORIA_COMPOSE.md), [seguridad](docs/devops/AUDITORIA_SEGURIDAD.md), [despliegue](docs/devops/AUDITORIA_DESPLIEGUE.md) y [calidad/gobernanza](docs/devops/AUDITORIA_CALIDAD_GOBERNANZA.md) registran la evolución y la evidencia de cada bloque. Seguridad y despliegue ya están integrados en develop; el [CI/CD por push del PR #13](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40877704856) aprobó sus cuatro jobs y se verificó su reporte de staging. El estado de integración y los checks de calidad/gobernanza se consultan en el [PR #14](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/pull/14). Siguen pendientes recursos/escalabilidad y la activación de la planificación Dependabot al entregar en main.
 
 ## Licencia
 

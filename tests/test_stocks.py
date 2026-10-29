@@ -107,11 +107,12 @@ def test_stock_update_cannot_duplicate_product_and_location(authorized_client, t
 
 
 @pytest.mark.parametrize("field", ["producto_id", "ubicacion_id"])
+@pytest.mark.parametrize("missing_id", [999999, None])
 def test_stock_update_rejects_missing_references_without_changing_stock(
-    authorized_client, test_stock, field,
+    authorized_client, test_stock, field, missing_id,
 ):
     path = f"/stocks/{test_stock.id}"
     original = authorized_client.get(path).json()
-    response = authorized_client.put(path, json={field: 999999})
+    response = authorized_client.put(path, json={field: missing_id})
     assert response.status_code == 404
     assert authorized_client.get(path).json() == original

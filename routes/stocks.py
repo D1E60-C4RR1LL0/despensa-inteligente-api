@@ -106,6 +106,16 @@ async def update_stock(
     if db_stock is None:
         raise HTTPException(status_code=404, detail="Stock no encontrado")
     
+    # Comprobar las referencias proporcionadas antes de modificar el registro.
+    if "producto_id" in stock.model_fields_set:
+        producto = db.query(ProductoModel).filter(ProductoModel.id == stock.producto_id).first()
+        if producto is None:
+            raise HTTPException(status_code=404, detail="Producto no encontrado")
+    if "ubicacion_id" in stock.model_fields_set:
+        ubicacion = db.query(UbicacionModel).filter(UbicacionModel.id == stock.ubicacion_id).first()
+        if ubicacion is None:
+            raise HTTPException(status_code=404, detail="Ubicación no encontrada")
+
     # Si se está cambiando producto_id o ubicacion_id, verificar que no exista otro registro con la misma combinación
     if (stock.producto_id and stock.producto_id != db_stock.producto_id) or \
        (stock.ubicacion_id and stock.ubicacion_id != db_stock.ubicacion_id):
@@ -146,4 +156,4 @@ async def delete_stock(
     
     db.delete(db_stock)
     db.commit()
-    return None 
+    return None
