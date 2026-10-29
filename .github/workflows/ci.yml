@@ -36,7 +36,24 @@ jobs:
           pip install -r requirements-dev.txt
 
       - name: Ejecutar pruebas
-        run: pytest
+        run: |
+          pytest --cov --cov-config=.coveragerc --cov-report=term-missing \
+            --cov-report=xml:.quality-reports/coverage.xml \
+            --cov-report=html:.quality-reports/html \
+            --junitxml=.quality-reports/junit.xml
+
+      - name: Conservar pruebas y cobertura
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: quality-${{ github.sha }}
+          path: |
+            .quality-reports/junit.xml
+            .quality-reports/coverage.xml
+            .quality-reports/html/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
 
   seguridad:
     runs-on: ubuntu-latest
