@@ -10,12 +10,14 @@ import secrets
 import subprocess
 import sys
 from tempfile import TemporaryDirectory
+import time
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from scripts.audit_docker import request
 from scripts.init_compose_env import create_env
+from scripts.measure_resources import ResourceMonitor, SERVICES, declared_limits, verify_limits
 
 
 def timestamp():
@@ -29,6 +31,8 @@ def main():
     parser.add_argument("--commit", required=True)
     parser.add_argument("--environment", required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--baseline-resources", action="store_true",
+                        help="Measure a local baseline with a temporary unlimited-resources override")
     args = parser.parse_args()
     report = {
         "status": "failure", "environment": args.environment,
@@ -42,6 +46,7 @@ def main():
         "run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
         "image": args.image, "expected_image_id": args.expected_image_id,
         "started_at": timestamp(), "checks": {}, "cleanup": "not_needed",
+        "resource_mode": "baseline" if args.baseline_resources else "bounded",
     }
     stage = "image_identity"
 
@@ -55,6 +60,8 @@ def main():
         return result.stdout.strip()
 
     try:
+        if args.baseline_resources and os.environ.get("GITHUB_ACTIONS") == "true":
+            raise ValueError("El modo base de medicion no esta permitido en CI")
         if not re.fullmatch(r"[0-9a-f]{40}", args.commit):
             raise ValueError("El commit debe ser un SHA completo")
         if not re.fullmatch(r"sha256:[0-9a-f]{64}", args.expected_image_id):
@@ -83,11 +90,18 @@ def main():
             env.update(API_IMAGE=args.image, API_PORT="0")
             for key in ("COMPOSE_PROFILES", "COMPOSE_FILE", "COMPOSE_PROJECT_NAME"):
                 env.pop(key, None)
+            files = ["--file", str(ROOT / "docker-compose.yml")]
+            if args.baseline_resources:
+                override = Path(temporary) / "resources-baseline.json"
+                override.write_text(json.dumps({"services": {
+                    service: {"cpus": 0, "mem_limit": 0} for service in SERVICES
+                }}), encoding="utf-8")
+                files.extend(["--file", str(override)])
 
             def compose(*command):
                 result = subprocess.run(
                     ["docker", "compose", "--project-name", project,
-                     "--env-file", str(env_file), "--file", str(ROOT / "docker-compose.yml"),
+                     "--env-file", str(env_file), *files,
                      *command], cwd=ROOT, env=env, capture_output=True, text=True,
                     encoding="utf-8", errors="replace", timeout=240,
                 )
@@ -104,9 +118,14 @@ def main():
                 container = compose("ps", "--all", "--quiet", service)
                 return docker("inspect", "--format", field, container)
 
+            monitor = ResourceMonitor(project)
+            monitor.start()
             try:
                 stage = "compose_startup"
-                compose("config", "--quiet")
+                configuration = json.loads(compose("config", "--format", "json"))
+                expected_limits = {service: declared_limits(configuration["services"][service],
+                                                            require_limits=not args.baseline_resources)
+                                   for service in SERVICES}
                 report["cleanup"] = "pending"
                 print("Desplegando imagen validada con Compose...", flush=True)
                 compose("up", "--detach", "--no-build", "--wait", "--wait-timeout", "180")
@@ -121,6 +140,7 @@ def main():
                 report["checks"].update(container_identity=True, migrations=True, healthy=True)
 
                 stage = "functional_validation"
+                monitor.phase = "functional"
                 base = "http://" + compose("port", "api", "8000")
                 if "/login" not in request(base, "/openapi.json")["paths"]:
                     raise RuntimeError("La API no expone el contrato esperado")
@@ -144,15 +164,56 @@ def main():
                 if not any(item["id"] == category["id"] for item in categories):
                     raise RuntimeError("No se pudo leer el dato creado mediante la API")
                 report["checks"].update(openapi=True, signup=True, login=True, database_read_write=True)
+
+                stage = "resource_validation"
+                monitor.phase = "operations"
+                durations = []
+                workload_started = time.perf_counter()
+                for _ in range(10):
+                    for path in ("/productos/", "/stocks/", "/stocks/alertas", "/productos/lista-compras"):
+                        started = time.perf_counter()
+                        result = request(base, path, token=token)
+                        if not isinstance(result, list):
+                            raise RuntimeError("Una operacion del perfil funcional no devolvio una lista")
+                        durations.append((time.perf_counter() - started) * 1000)
+                    time.sleep(0.2)
+                report["resource_workload"] = {
+                    "requests": len(durations), "successful": len(durations),
+                    "elapsed_seconds": round(time.perf_counter() - workload_started, 3),
+                    "mean_latency_ms": round(sum(durations) / len(durations), 3),
+                    "max_latency_ms": round(max(durations), 3),
+                }
+                report["effective_limits"] = {}
+                for service in SERVICES:
+                    data = inspect(service, '{{.HostConfig.NanoCpus}}|{{.HostConfig.Memory}}|'
+                                           '{{.State.OOMKilled}}|{{.RestartCount}}').split("|")
+                    actual = {"nano_cpus": int(data[0]), "memory_bytes": int(data[1]),
+                              "oom_killed": data[2] == "true", "restart_count": int(data[3])}
+                    verify_limits(expected_limits[service], actual,
+                                  require_limits=not args.baseline_resources)
+                    report["effective_limits"][service] = {"declared": expected_limits[service],
+                                                          "actual": actual}
+                report["checks"]["resource_limits"] = True
                 report["validated_at"] = timestamp()
             finally:
                 try:
-                    # Only this randomly named deployment project owns these resources.
-                    compose("down", "--volumes", "--remove-orphans")
-                    report["cleanup"] = "success"
-                except Exception:
-                    report["cleanup"] = "failure"
-                    raise
+                    monitor.stop()
+                    report["resource_measurements"] = monitor.report()
+                finally:
+                    try:
+                        # Only this randomly named deployment project owns these resources.
+                        compose("down", "--volumes", "--remove-orphans")
+                        report["cleanup"] = "success"
+                    except Exception:
+                        report["cleanup"] = "failure"
+                        raise
+                if "validated_at" in report and (
+                    report["resource_measurements"]["sampling_errors"] or any(
+                        report["resource_measurements"]["services"][service]["sample_count"] == 0
+                        for service in ("db", "api")
+                    )
+                ):
+                    raise RuntimeError("No se obtuvo una medicion valida de API y MySQL")
         report["status"] = "success"
     except Exception as error:
         report["failed_stage"] = stage
