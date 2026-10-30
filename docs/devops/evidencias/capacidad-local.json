@@ -1,0 +1,467 @@
+{
+  "source_report_sha256": "d1fbcf307d1de6ab52ce8e1576d36ec61b346af3dfde2ffb0493181281c497c6",
+  "scope": "Local working-tree scripts; application image from develop 79b3813; not CI evidence",
+  "docker_engine": "27.2.0",
+  "compose": "v2.29.2-desktop.2",
+  "status": "success",
+  "commit": "79b38132a908fde7207db64702c77087d34aee9f",
+  "expected_image_id": "sha256:e810cee0d59dd85c6b5736164a9ec8a0c06b9161c56848e02d83ba881000f8ec",
+  "started_at": "2026-10-30T21:54:52.328889+00:00",
+  "finished_at": "2026-10-30T22:02:18.266575+00:00",
+  "order": [
+    "standard",
+    "expanded",
+    "expanded",
+    "standard"
+  ],
+  "comparison": {
+    "profiles": {
+      "standard": {
+        "api_limits": {
+          "cpus": 0.5,
+          "mem_limit": "192m"
+        },
+        "repetitions": 2,
+        "median_requests_per_second": 24.254,
+        "median_p95_latency_ms": 571.013,
+        "successful_requests": 4800,
+        "errors": 0
+      },
+      "expanded": {
+        "api_limits": {
+          "cpus": 1.0,
+          "mem_limit": "384m"
+        },
+        "repetitions": 2,
+        "median_requests_per_second": 44.712,
+        "median_p95_latency_ms": 325.541,
+        "successful_requests": 4800,
+        "errors": 0
+      }
+    },
+    "observed_throughput_ratio_expanded_over_standard": 1.843,
+    "scope": "Observed vertical budget comparison on one host; not maximum capacity, SLA or autoscaling"
+  },
+  "runs": [
+    {
+      "status": "success",
+      "commit": "79b38132a908fde7207db64702c77087d34aee9f",
+      "image_id": "sha256:e810cee0d59dd85c6b5736164a9ec8a0c06b9161c56848e02d83ba881000f8ec",
+      "capacity_profile": "standard",
+      "started_at": "2026-10-30T21:54:52.516212+00:00",
+      "finished_at": "2026-10-30T21:56:53.964482+00:00",
+      "capacity_workload": {
+        "case": {
+          "products": 24,
+          "stock_per_product": 2,
+          "minimum_stock": 5,
+          "requests": 2400,
+          "concurrency": 8,
+          "warmup_requests": 16,
+          "paths": [
+            "/productos/",
+            "/stocks/",
+            "/stocks/alertas",
+            "/productos/lista-compras"
+          ],
+          "model": "closed-loop, fixed requests, no retries"
+        },
+        "case_sha256": "a9823c044008bbad3940d737b5279b05c64ce780998fac491ed078817e1701f6",
+        "requests": 2400,
+        "successful": 2400,
+        "errors": 0,
+        "error_types": {},
+        "elapsed_seconds": 85.37759,
+        "requests_per_second": 28.11,
+        "mean_latency_ms": 283.871,
+        "p50_latency_ms": 285.522,
+        "p95_latency_ms": 414.926,
+        "max_latency_ms": 1201.127
+      },
+      "effective_limits": {
+        "db": {
+          "declared": {
+            "nano_cpus": 1000000000,
+            "memory_bytes": 805306368
+          },
+          "actual": {
+            "nano_cpus": 1000000000,
+            "memory_bytes": 805306368,
+            "oom_killed": false,
+            "restart_count": 0
+          }
+        },
+        "migrate": {
+          "declared": {
+            "nano_cpus": 500000000,
+            "memory_bytes": 201326592
+          },
+          "actual": {
+            "nano_cpus": 500000000,
+            "memory_bytes": 201326592,
+            "oom_killed": false,
+            "restart_count": 0
+          }
+        },
+        "api": {
+          "declared": {
+            "nano_cpus": 500000000,
+            "memory_bytes": 201326592
+          },
+          "actual": {
+            "nano_cpus": 500000000,
+            "memory_bytes": 201326592,
+            "oom_killed": false,
+            "restart_count": 0
+          }
+        }
+      },
+      "checks": {
+        "build_identity": true,
+        "container_identity": true,
+        "migrations": true,
+        "healthy": true,
+        "openapi": true,
+        "signup": true,
+        "login": true,
+        "database_read_write": true,
+        "capacity_workload": true,
+        "resource_limits": true
+      },
+      "cleanup": "success",
+      "sampled_resources": {
+        "db": {
+          "sample_count": 35,
+          "max_sampled_memory_mib": 464.6,
+          "max_sampled_cpu_percent": 98.72
+        },
+        "migrate": {
+          "sample_count": 1,
+          "max_sampled_memory_mib": 6.69,
+          "max_sampled_cpu_percent": 31.37
+        },
+        "api": {
+          "sample_count": 30,
+          "max_sampled_memory_mib": 84.42,
+          "max_sampled_cpu_percent": 52.15
+        }
+      },
+      "sampling_errors": []
+    },
+    {
+      "status": "success",
+      "commit": "79b38132a908fde7207db64702c77087d34aee9f",
+      "image_id": "sha256:e810cee0d59dd85c6b5736164a9ec8a0c06b9161c56848e02d83ba881000f8ec",
+      "capacity_profile": "expanded",
+      "started_at": "2026-10-30T21:56:54.220870+00:00",
+      "finished_at": "2026-10-30T21:58:20.096192+00:00",
+      "capacity_workload": {
+        "case": {
+          "products": 24,
+          "stock_per_product": 2,
+          "minimum_stock": 5,
+          "requests": 2400,
+          "concurrency": 8,
+          "warmup_requests": 16,
+          "paths": [
+            "/productos/",
+            "/stocks/",
+            "/stocks/alertas",
+            "/productos/lista-compras"
+          ],
+          "model": "closed-loop, fixed requests, no retries"
+        },
+        "case_sha256": "a9823c044008bbad3940d737b5279b05c64ce780998fac491ed078817e1701f6",
+        "requests": 2400,
+        "successful": 2400,
+        "errors": 0,
+        "error_types": {},
+        "elapsed_seconds": 52.635314,
+        "requests_per_second": 45.597,
+        "mean_latency_ms": 175.228,
+        "p50_latency_ms": 159.594,
+        "p95_latency_ms": 321.185,
+        "max_latency_ms": 785.7
+      },
+      "effective_limits": {
+        "db": {
+          "declared": {
+            "nano_cpus": 1000000000,
+            "memory_bytes": 805306368
+          },
+          "actual": {
+            "nano_cpus": 1000000000,
+            "memory_bytes": 805306368,
+            "oom_killed": false,
+            "restart_count": 0
+          }
+        },
+        "migrate": {
+          "declared": {
+            "nano_cpus": 500000000,
+            "memory_bytes": 201326592
+          },
+          "actual": {
+            "nano_cpus": 500000000,
+            "memory_bytes": 201326592,
+            "oom_killed": false,
+            "restart_count": 0
+          }
+        },
+        "api": {
+          "declared": {
+            "nano_cpus": 1000000000,
+            "memory_bytes": 402653184
+          },
+          "actual": {
+            "nano_cpus": 1000000000,
+            "memory_bytes": 402653184,
+            "oom_killed": false,
+            "restart_count": 0
+          }
+        }
+      },
+      "checks": {
+        "build_identity": true,
+        "container_identity": true,
+        "migrations": true,
+        "healthy": true,
+        "openapi": true,
+        "signup": true,
+        "login": true,
+        "database_read_write": true,
+        "capacity_workload": true,
+        "resource_limits": true
+      },
+      "cleanup": "success",
+      "sampled_resources": {
+        "db": {
+          "sample_count": 26,
+          "max_sampled_memory_mib": 456.1,
+          "max_sampled_cpu_percent": 99.37
+        },
+        "migrate": {
+          "sample_count": 0,
+          "max_sampled_memory_mib": null,
+          "max_sampled_cpu_percent": null
+        },
+        "api": {
+          "sample_count": 20,
+          "max_sampled_memory_mib": 75.19,
+          "max_sampled_cpu_percent": 95.39
+        }
+      },
+      "sampling_errors": []
+    },
+    {
+      "status": "success",
+      "commit": "79b38132a908fde7207db64702c77087d34aee9f",
+      "image_id": "sha256:e810cee0d59dd85c6b5736164a9ec8a0c06b9161c56848e02d83ba881000f8ec",
+      "capacity_profile": "expanded",
+      "started_at": "2026-10-30T21:58:20.379385+00:00",
+      "finished_at": "2026-10-30T21:59:46.495478+00:00",
+      "capacity_workload": {
+        "case": {
+          "products": 24,
+          "stock_per_product": 2,
+          "minimum_stock": 5,
+          "requests": 2400,
+          "concurrency": 8,
+          "warmup_requests": 16,
+          "paths": [
+            "/productos/",
+            "/stocks/",
+            "/stocks/alertas",
+            "/productos/lista-compras"
+          ],
+          "model": "closed-loop, fixed requests, no retries"
+        },
+        "case_sha256": "a9823c044008bbad3940d737b5279b05c64ce780998fac491ed078817e1701f6",
+        "requests": 2400,
+        "successful": 2400,
+        "errors": 0,
+        "error_types": {},
+        "elapsed_seconds": 54.76128,
+        "requests_per_second": 43.827,
+        "mean_latency_ms": 182.087,
+        "p50_latency_ms": 167.95,
+        "p95_latency_ms": 329.897,
+        "max_latency_ms": 728.023
+      },
+      "effective_limits": {
+        "db": {
+          "declared": {
+            "nano_cpus": 1000000000,
+            "memory_bytes": 805306368
+          },
+          "actual": {
+            "nano_cpus": 1000000000,
+            "memory_bytes": 805306368,
+            "oom_killed": false,
+            "restart_count": 0
+          }
+        },
+        "migrate": {
+          "declared": {
+            "nano_cpus": 500000000,
+            "memory_bytes": 201326592
+          },
+          "actual": {
+            "nano_cpus": 500000000,
+            "memory_bytes": 201326592,
+            "oom_killed": false,
+            "restart_count": 0
+          }
+        },
+        "api": {
+          "declared": {
+            "nano_cpus": 1000000000,
+            "memory_bytes": 402653184
+          },
+          "actual": {
+            "nano_cpus": 1000000000,
+            "memory_bytes": 402653184,
+            "oom_killed": false,
+            "restart_count": 0
+          }
+        }
+      },
+      "checks": {
+        "build_identity": true,
+        "container_identity": true,
+        "migrations": true,
+        "healthy": true,
+        "openapi": true,
+        "signup": true,
+        "login": true,
+        "database_read_write": true,
+        "capacity_workload": true,
+        "resource_limits": true
+      },
+      "cleanup": "success",
+      "sampled_resources": {
+        "db": {
+          "sample_count": 25,
+          "max_sampled_memory_mib": 454.2,
+          "max_sampled_cpu_percent": 101.07
+        },
+        "migrate": {
+          "sample_count": 0,
+          "max_sampled_memory_mib": null,
+          "max_sampled_cpu_percent": null
+        },
+        "api": {
+          "sample_count": 19,
+          "max_sampled_memory_mib": 85.34,
+          "max_sampled_cpu_percent": 98.42
+        }
+      },
+      "sampling_errors": []
+    },
+    {
+      "status": "success",
+      "commit": "79b38132a908fde7207db64702c77087d34aee9f",
+      "image_id": "sha256:e810cee0d59dd85c6b5736164a9ec8a0c06b9161c56848e02d83ba881000f8ec",
+      "capacity_profile": "standard",
+      "started_at": "2026-10-30T21:59:46.803802+00:00",
+      "finished_at": "2026-10-30T22:02:18.221956+00:00",
+      "capacity_workload": {
+        "case": {
+          "products": 24,
+          "stock_per_product": 2,
+          "minimum_stock": 5,
+          "requests": 2400,
+          "concurrency": 8,
+          "warmup_requests": 16,
+          "paths": [
+            "/productos/",
+            "/stocks/",
+            "/stocks/alertas",
+            "/productos/lista-compras"
+          ],
+          "model": "closed-loop, fixed requests, no retries"
+        },
+        "case_sha256": "a9823c044008bbad3940d737b5279b05c64ce780998fac491ed078817e1701f6",
+        "requests": 2400,
+        "successful": 2400,
+        "errors": 0,
+        "error_types": {},
+        "elapsed_seconds": 117.656422,
+        "requests_per_second": 20.398,
+        "mean_latency_ms": 391.768,
+        "p50_latency_ms": 347.475,
+        "p95_latency_ms": 727.099,
+        "max_latency_ms": 2610.254
+      },
+      "effective_limits": {
+        "db": {
+          "declared": {
+            "nano_cpus": 1000000000,
+            "memory_bytes": 805306368
+          },
+          "actual": {
+            "nano_cpus": 1000000000,
+            "memory_bytes": 805306368,
+            "oom_killed": false,
+            "restart_count": 0
+          }
+        },
+        "migrate": {
+          "declared": {
+            "nano_cpus": 500000000,
+            "memory_bytes": 201326592
+          },
+          "actual": {
+            "nano_cpus": 500000000,
+            "memory_bytes": 201326592,
+            "oom_killed": false,
+            "restart_count": 0
+          }
+        },
+        "api": {
+          "declared": {
+            "nano_cpus": 500000000,
+            "memory_bytes": 201326592
+          },
+          "actual": {
+            "nano_cpus": 500000000,
+            "memory_bytes": 201326592,
+            "oom_killed": false,
+            "restart_count": 0
+          }
+        }
+      },
+      "checks": {
+        "build_identity": true,
+        "container_identity": true,
+        "migrations": true,
+        "healthy": true,
+        "openapi": true,
+        "signup": true,
+        "login": true,
+        "database_read_write": true,
+        "capacity_workload": true,
+        "resource_limits": true
+      },
+      "cleanup": "success",
+      "sampled_resources": {
+        "db": {
+          "sample_count": 43,
+          "max_sampled_memory_mib": 453.6,
+          "max_sampled_cpu_percent": 99.66
+        },
+        "migrate": {
+          "sample_count": 0,
+          "max_sampled_memory_mib": null,
+          "max_sampled_cpu_percent": null
+        },
+        "api": {
+          "sample_count": 37,
+          "max_sampled_memory_mib": 86.74,
+          "max_sampled_cpu_percent": 54.11
+        }
+      },
+      "sampling_errors": []
+    }
+  ]
+}

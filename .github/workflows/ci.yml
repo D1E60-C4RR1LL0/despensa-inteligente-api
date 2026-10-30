@@ -164,7 +164,7 @@ jobs:
   despliegue:
     needs: imagen
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 18
     environment: ${{ github.event_name == 'pull_request' && 'revision-simulada' || github.ref_name == 'main' && 'produccion-simulada' || 'staging-simulado' }}
     env:
       API_IMAGE: inventory-api:${{ github.sha }}
@@ -202,5 +202,22 @@ jobs:
         with:
           name: deployment-${{ github.sha }}
           path: deployment/report.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Comparar dos presupuestos de capacidad
+        run: |
+          python scripts/compare_capacity.py --image "$API_IMAGE" \
+            --expected-image-id "$EXPECTED_IMAGE_ID" --commit "$GITHUB_SHA" \
+            --environment "$DEPLOY_ENV" --output deployment/capacity-comparison.json
+
+      - name: Conservar comparacion de capacidad
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: capacity-${{ github.sha }}
+          path: |
+            deployment/capacity-comparison.json
+            deployment/capacity-comparison-runs/*.json
           if-no-files-found: error
           retention-days: 30

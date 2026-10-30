@@ -18,6 +18,7 @@ sys.path.insert(0, str(ROOT))
 from scripts.audit_docker import request
 from scripts.init_compose_env import create_env
 from scripts.measure_resources import ResourceMonitor, SERVICES, declared_limits, verify_limits
+from scripts.capacity_workload import PROFILES, run_workload, seed_inventory
 
 
 def timestamp():
@@ -31,8 +32,11 @@ def main():
     parser.add_argument("--commit", required=True)
     parser.add_argument("--environment", required=True)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--baseline-resources", action="store_true",
+    resources = parser.add_mutually_exclusive_group()
+    resources.add_argument("--baseline-resources", action="store_true",
                         help="Measure a local baseline with a temporary unlimited-resources override")
+    resources.add_argument("--capacity-profile", choices=PROFILES,
+                           help="Run the fixed concurrent workload with a bounded API resource budget")
     args = parser.parse_args()
     report = {
         "status": "failure", "environment": args.environment,
@@ -97,6 +101,13 @@ def main():
                     service: {"cpus": 0, "mem_limit": 0} for service in SERVICES
                 }}), encoding="utf-8")
                 files.extend(["--file", str(override)])
+            elif args.capacity_profile:
+                override = Path(temporary) / "capacity-profile.json"
+                override.write_text(json.dumps({"services": {
+                    "api": PROFILES[args.capacity_profile]
+                }}), encoding="utf-8")
+                files.extend(["--file", str(override)])
+                report["capacity_profile"] = args.capacity_profile
 
             def compose(*command):
                 result = subprocess.run(
@@ -183,6 +194,14 @@ def main():
                     "mean_latency_ms": round(sum(durations) / len(durations), 3),
                     "max_latency_ms": round(max(durations), 3),
                 }
+                if args.capacity_profile:
+                    stage = "capacity_validation"
+                    monitor.phase = "capacity_seed"
+                    products = seed_inventory(base, token, category["id"])
+                    report["capacity_workload"] = run_workload(base, token, products, monitor)
+                    if report["capacity_workload"]["errors"]:
+                        raise RuntimeError("El perfil de capacidad contiene errores HTTP o de datos")
+                    report["checks"]["capacity_workload"] = True
                 report["effective_limits"] = {}
                 for service in SERVICES:
                     data = inspect(service, '{{.HostConfig.NanoCpus}}|{{.HostConfig.Memory}}|'
