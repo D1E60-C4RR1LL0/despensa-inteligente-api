@@ -598,7 +598,7 @@ Las pruebas cubren:
 
 ### Estado actual
 
-La E1 cerró con **49 pruebas automatizadas exitosas**. Con los casos críticos de inventario y JWT, la suite local tiene **123 pruebas aprobadas** y **92,74% de cobertura global de sentencias de la API**. Incluye 23 comprobaciones aisladas y 100 de integración/configuración; no se presenta el total como pruebas unitarias puras. La [auditoría de calidad y gobernanza](docs/devops/AUDITORIA_CALIDAD_GOBERNANZA.md) registra la medición, su alcance y las pruebas de bloqueo. Las auditorías anteriores conservan sus resultados históricos.
+La E1 cerró con **49 pruebas automatizadas exitosas**. Con los casos críticos de inventario/JWT y los controles de capacidad, la suite local tiene **134 pruebas aprobadas** y **92,74% de cobertura global de sentencias de la API**. Incluye 34 comprobaciones aisladas y 100 de integración/configuración; no se presenta el total como pruebas unitarias puras. Las auditorías de [calidad/gobernanza](docs/devops/AUDITORIA_CALIDAD_GOBERNANZA.md) y [capacidad](docs/devops/AUDITORIA_CAPACIDAD.md) registran las mediciones, su alcance y las pruebas de bloqueo. Las auditorías anteriores conservan sus resultados históricos.
 
 Las mismas pruebas se ejecutan automáticamente mediante GitHub Actions.
 
@@ -826,6 +826,8 @@ El entorno contiene la API, MySQL y el servicio Alembic del Compose existente. U
 La trazabilidad relaciona PR/commit, evento y rama, ejecución de Actions, etiqueta e ID de imagen y resultados funcionales en `deployment/report.json`. En PR se registra el commit de integración temporal; en push, el commit integrado. El informe se conserva en el artefacto `deployment-<SHA>` durante 30 días y se resume en Actions. La imagen de transferencia se conserva 1 día. El reporte no contiene contraseñas, JWT ni archivos `.env`.
 
 Los resultados locales y remotos, junto con las fuentes de clase y los pendientes de IE4, se registran en [AUDITORIA_DESPLIEGUE.md](docs/devops/AUDITORIA_DESPLIEGUE.md). Las retenciones y la transferencia de imágenes son decisiones de este proyecto para demostrar el requisito de trazabilidad.
+
+Después del despliegue habitual, el mismo job ejecuta una [comparación de capacidad](docs/devops/AUDITORIA_CAPACIDAD.md) con 0,5 CPU/192 MiB y 1 CPU/384 MiB para la API. Mantiene imagen, MySQL, migraciones y datos equivalentes: 24 productos, 2.400 GET con ocho clientes concurrentes por repetición y dos repeticiones por presupuesto. El artefacto `capacity-<SHA>` conserva resultados, cuotas efectivas y limpieza durante 30 días. Fallan las respuestas incorrectas o las comparaciones inválidas; una mejora de rendimiento no es requisito del job. La prueba aporta evidencia de capacidad vertical en un host y no acredita autoscaling.
 
 ---
 
