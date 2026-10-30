@@ -3,9 +3,8 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta
 
-from config.database import Base, engine, get_db
-# Importar todos los modelos para asegurar que se creen todas las tablas
-from models import User as UserModel, TokenBlacklist, Categoria, Proveedor, Ubicacion, Producto, Stock, TipoMovimiento, MovimientoInventario
+from config.database import get_db
+from models import User as UserModel
 from schemas.token import Token
 from schemas.user import UserCreate, UserResponse
 from utils.utils import create_access_token, get_password_hash, verify_password, add_token_to_blacklist
@@ -16,9 +15,6 @@ app = FastAPI(
     description="API para la gestión de inventario de productos",
     version="1.0.0"
 )
-
-# Crear tablas
-Base.metadata.create_all(bind=engine)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 

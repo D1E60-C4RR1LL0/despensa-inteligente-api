@@ -221,6 +221,10 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
+.security-reports/
+.quality-reports/
+image-transfer/
+deployment/
 cover/
 
 # Translations
@@ -293,6 +297,9 @@ celerybeat.pid
 
 # Environments
 .env
+.env.*
+!.env.example
+!.env.compose.example
 .venv
 env/
 venv/

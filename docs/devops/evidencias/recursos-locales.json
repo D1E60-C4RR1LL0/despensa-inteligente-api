@@ -1,0 +1,271 @@
+{
+  "scope": "Local sampled functional validation; not a stress test or guaranteed peak",
+  "docker_engine": "27.2.0",
+  "compose": "v2.29.2-desktop.2",
+  "runs": [
+    {
+      "report": "resources-baseline",
+      "status": "success",
+      "environment": "local-baseline",
+      "commit": "7b84892db37faa5a28e3fd7c7f96e32ae5b7942a",
+      "image_id": "sha256:6e5a249f197e35ed1a956ad6713dbf71bd6d17462f3e966aafebf8d9f375556d",
+      "started_at": "2026-10-29T18:54:54.151599+00:00",
+      "finished_at": "2026-10-29T18:55:28.093959+00:00",
+      "checks": {
+        "build_identity": true,
+        "container_identity": true,
+        "migrations": true,
+        "healthy": true,
+        "openapi": true,
+        "signup": true,
+        "login": true,
+        "database_read_write": true,
+        "resource_limits": true
+      },
+      "cleanup": "success",
+      "resource_mode": "baseline",
+      "effective_limits": {
+        "db": {
+          "declared": {
+            "nano_cpus": 0,
+            "memory_bytes": 0
+          },
+          "actual": {
+            "nano_cpus": 0,
+            "memory_bytes": 0,
+            "oom_killed": false,
+            "restart_count": 0
+          }
+        },
+        "migrate": {
+          "declared": {
+            "nano_cpus": 0,
+            "memory_bytes": 0
+          },
+          "actual": {
+            "nano_cpus": 0,
+            "memory_bytes": 0,
+            "oom_killed": false,
+            "restart_count": 0
+          }
+        },
+        "api": {
+          "declared": {
+            "nano_cpus": 0,
+            "memory_bytes": 0
+          },
+          "actual": {
+            "nano_cpus": 0,
+            "memory_bytes": 0,
+            "oom_killed": false,
+            "restart_count": 0
+          }
+        }
+      },
+      "resource_workload": {
+        "requests": 40,
+        "successful": 40,
+        "elapsed_seconds": 2.475,
+        "mean_latency_ms": 11.761,
+        "max_latency_ms": 32.037
+      },
+      "measurements": {
+        "method": "docker stats --no-stream; approximately every 2-3 seconds",
+        "services": {
+          "db": {
+            "sample_count": 10,
+            "max_sampled_memory_mib": 443.2,
+            "max_sampled_cpu_percent": 108.46
+          },
+          "migrate": {
+            "sample_count": 0,
+            "max_sampled_memory_mib": null,
+            "max_sampled_cpu_percent": null
+          },
+          "api": {
+            "sample_count": 3,
+            "max_sampled_memory_mib": 72.32,
+            "max_sampled_cpu_percent": 8.25
+          }
+        },
+        "sampling_errors": []
+      }
+    },
+    {
+      "report": "resources-bounded",
+      "status": "success",
+      "environment": "local-bounded",
+      "commit": "7b84892db37faa5a28e3fd7c7f96e32ae5b7942a",
+      "image_id": "sha256:6e5a249f197e35ed1a956ad6713dbf71bd6d17462f3e966aafebf8d9f375556d",
+      "started_at": "2026-10-29T18:57:00.709959+00:00",
+      "finished_at": "2026-10-29T18:57:33.887498+00:00",
+      "checks": {
+        "build_identity": true,
+        "container_identity": true,
+        "migrations": true,
+        "healthy": true,
+        "openapi": true,
+        "signup": true,
+        "login": true,
+        "database_read_write": true,
+        "resource_limits": true
+      },
+      "cleanup": "success",
+      "resource_mode": "bounded",
+      "effective_limits": {
+        "db": {
+          "declared": {
+            "nano_cpus": 1000000000,
+            "memory_bytes": 805306368
+          },
+          "actual": {
+            "nano_cpus": 1000000000,
+            "memory_bytes": 805306368,
+            "oom_killed": false,
+            "restart_count": 0
+          }
+        },
+        "migrate": {
+          "declared": {
+            "nano_cpus": 500000000,
+            "memory_bytes": 201326592
+          },
+          "actual": {
+            "nano_cpus": 500000000,
+            "memory_bytes": 201326592,
+            "oom_killed": false,
+            "restart_count": 0
+          }
+        },
+        "api": {
+          "declared": {
+            "nano_cpus": 500000000,
+            "memory_bytes": 201326592
+          },
+          "actual": {
+            "nano_cpus": 500000000,
+            "memory_bytes": 201326592,
+            "oom_killed": false,
+            "restart_count": 0
+          }
+        }
+      },
+      "resource_workload": {
+        "requests": 40,
+        "successful": 40,
+        "elapsed_seconds": 2.464,
+        "mean_latency_ms": 11.513,
+        "max_latency_ms": 50.35
+      },
+      "measurements": {
+        "method": "docker stats --no-stream; approximately every 2-3 seconds",
+        "services": {
+          "db": {
+            "sample_count": 10,
+            "max_sampled_memory_mib": 442.9,
+            "max_sampled_cpu_percent": 80.4
+          },
+          "migrate": {
+            "sample_count": 1,
+            "max_sampled_memory_mib": 49.93,
+            "max_sampled_cpu_percent": 50.61
+          },
+          "api": {
+            "sample_count": 5,
+            "max_sampled_memory_mib": 81.39,
+            "max_sampled_cpu_percent": 51.0
+          }
+        },
+        "sampling_errors": []
+      }
+    },
+    {
+      "report": "resources-baseline-repro",
+      "status": "success",
+      "environment": "local-baseline-repro",
+      "commit": "7b84892db37faa5a28e3fd7c7f96e32ae5b7942a",
+      "image_id": "sha256:6e5a249f197e35ed1a956ad6713dbf71bd6d17462f3e966aafebf8d9f375556d",
+      "started_at": "2026-10-29T19:01:18.988636+00:00",
+      "finished_at": "2026-10-29T19:01:55.346121+00:00",
+      "checks": {
+        "build_identity": true,
+        "container_identity": true,
+        "migrations": true,
+        "healthy": true,
+        "openapi": true,
+        "signup": true,
+        "login": true,
+        "database_read_write": true,
+        "resource_limits": true
+      },
+      "cleanup": "success",
+      "resource_mode": "baseline",
+      "effective_limits": {
+        "db": {
+          "declared": {
+            "nano_cpus": 0,
+            "memory_bytes": 0
+          },
+          "actual": {
+            "nano_cpus": 0,
+            "memory_bytes": 0,
+            "oom_killed": false,
+            "restart_count": 0
+          }
+        },
+        "migrate": {
+          "declared": {
+            "nano_cpus": 0,
+            "memory_bytes": 0
+          },
+          "actual": {
+            "nano_cpus": 0,
+            "memory_bytes": 0,
+            "oom_killed": false,
+            "restart_count": 0
+          }
+        },
+        "api": {
+          "declared": {
+            "nano_cpus": 0,
+            "memory_bytes": 0
+          },
+          "actual": {
+            "nano_cpus": 0,
+            "memory_bytes": 0,
+            "oom_killed": false,
+            "restart_count": 0
+          }
+        }
+      },
+      "resource_workload": {
+        "requests": 40,
+        "successful": 40,
+        "elapsed_seconds": 2.45,
+        "mean_latency_ms": 11.097,
+        "max_latency_ms": 30.624
+      },
+      "measurements": {
+        "method": "docker stats --no-stream; approximately every 2-3 seconds",
+        "services": {
+          "db": {
+            "sample_count": 11,
+            "max_sampled_memory_mib": 452.0,
+            "max_sampled_cpu_percent": 114.63
+          },
+          "migrate": {
+            "sample_count": 0,
+            "max_sampled_memory_mib": null,
+            "max_sampled_cpu_percent": null
+          },
+          "api": {
+            "sample_count": 4,
+            "max_sampled_memory_mib": 72.33,
+            "max_sampled_cpu_percent": 10.43
+          }
+        },
+        "sampling_errors": []
+      }
+    }
+  ]
+}

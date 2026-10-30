@@ -1,12 +1,15 @@
 from datetime import datetime, timedelta
 from typing import Optional
+import os
 import jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
 from models.user import TokenBlacklist
 
-SECRET_KEY = "mysecretkey"
+SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+if not SECRET_KEY or not SECRET_KEY.strip():
+    raise RuntimeError("JWT_SECRET_KEY no está configurada")
 ALGORITHM = "HS256"
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

@@ -1,0 +1,68 @@
+name: inventory-e2
+
+services:
+  db:
+    image: mysql:8.4
+    cpus: 1.0
+    mem_limit: 768m
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:?Configurar MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER:?Configurar MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Configurar MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Configurar MYSQL_ROOT_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - backend
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'MYSQL_PWD="$${MYSQL_PASSWORD}" mysql --protocol=TCP -h127.0.0.1 -u"$${MYSQL_USER}" "$${MYSQL_DATABASE}" -Nse "SELECT 1"'
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 30s
+    restart: unless-stopped
+
+  migrate:
+    build: .
+    image: ${API_IMAGE:-inventory-api:local}
+    cpus: 0.50
+    mem_limit: 192m
+    environment:
+      DATABASE_URL: ${COMPOSE_DATABASE_URL:?Configurar COMPOSE_DATABASE_URL}
+    command: ["python", "-m", "alembic", "upgrade", "head"]
+    healthcheck:
+      disable: true
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend
+    restart: "no"
+
+  api:
+    build: .
+    image: ${API_IMAGE:-inventory-api:local}
+    cpus: 0.50
+    mem_limit: 192m
+    environment:
+      DATABASE_URL: ${COMPOSE_DATABASE_URL:?Configurar COMPOSE_DATABASE_URL}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?Configurar JWT_SECRET_KEY}
+    ports:
+      - "127.0.0.1:${API_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - backend
+    restart: unless-stopped
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  mysql_data:

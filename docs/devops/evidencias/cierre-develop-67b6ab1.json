@@ -1,0 +1,203 @@
+{
+  "snapshot_date": "2026-10-29",
+  "scope": "Verified develop baseline before documentation closure; not final main delivery",
+  "repository": "D1E60-C4RR1LL0/despensa-inteligente-api",
+  "commit": "67b6ab1498caeebd31a1c08f500f7bb9206d879f",
+  "run_id": 40937752277,
+  "run_url": "https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40937752277",
+  "jobs": [
+    {
+      "id": 123672702596,
+      "name": "seguridad",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 123672702985,
+      "name": "pruebas",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 123673238272,
+      "name": "imagen",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 123674041335,
+      "name": "despliegue",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 12926135767,
+      "name": "snyk-security-67b6ab1498caeebd31a1c08f500f7bb9206d879f",
+      "digest": "sha256:102ec13282d9b608461b1ba9e74fbcc02a20f8b38073b694f30e8e46f914747f",
+      "expires_at": "2026-11-12T19:11:52Z",
+      "zip_digest_verified": true
+    },
+    {
+      "id": 12925423190,
+      "name": "deployment-67b6ab1498caeebd31a1c08f500f7bb9206d879f",
+      "digest": "sha256:d3b183a047f3ca88feef0fba7489040077abdc7d56bd8e085d341b4962f95e91",
+      "expires_at": "2026-11-28T19:14:38Z",
+      "zip_digest_verified": true
+    },
+    {
+      "id": 12924929116,
+      "name": "api-image-67b6ab1498caeebd31a1c08f500f7bb9206d879f",
+      "digest": "sha256:29306180e83076d09ad45f5ea5bb8cec7291fc1829696cf9a7cf41a135dd0879",
+      "expires_at": "2026-10-30T19:13:32Z",
+      "zip_digest_verified": false
+    },
+    {
+      "id": 12924599535,
+      "name": "quality-67b6ab1498caeebd31a1c08f500f7bb9206d879f",
+      "digest": "sha256:2438dd405218bdd0296d08caa5fad3b9f3fff9170a1cdfd03bfcff1b5713cdf0",
+      "expires_at": "2026-11-28T19:12:02Z",
+      "zip_digest_verified": true
+    }
+  ],
+  "compose_image_audit": {
+    "requested_image_used": true,
+    "startup_and_api_pass": true,
+    "schema_tables": 9,
+    "schema_differences": 0,
+    "persistent_data_after_recreation": true,
+    "migration_failure_blocks_api": true,
+    "all_checks_pass": true
+  },
+  "quality": {
+    "tests": 123,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "api_statements_covered": 856,
+    "api_statements_total": 923,
+    "api_statement_coverage_percent": 92.74,
+    "project_minimum_percent": 80
+  },
+  "deployment": {
+    "status": "success",
+    "environment": "staging-simulado",
+    "lifecycle": "ephemeral",
+    "commit": "67b6ab1498caeebd31a1c08f500f7bb9206d879f",
+    "ref": "refs/heads/develop",
+    "event": "push",
+    "image": "inventory-api:67b6ab1498caeebd31a1c08f500f7bb9206d879f",
+    "image_id": "sha256:4c003452dc6ed6274972014da686f1772fd46f3f234162c343fa382c31fae6f6",
+    "expected_image_id": "sha256:4c003452dc6ed6274972014da686f1772fd46f3f234162c343fa382c31fae6f6",
+    "started_at": "2026-10-29T19:13:56.402202+00:00",
+    "finished_at": "2026-10-29T19:14:38.574955+00:00",
+    "checks": {
+      "build_identity": true,
+      "container_identity": true,
+      "migrations": true,
+      "healthy": true,
+      "openapi": true,
+      "signup": true,
+      "login": true,
+      "database_read_write": true,
+      "resource_limits": true
+    },
+    "cleanup": "success",
+    "resource_mode": "bounded",
+    "effective_limits": {
+      "db": {
+        "declared": {
+          "nano_cpus": 1000000000,
+          "memory_bytes": 805306368
+        },
+        "actual": {
+          "nano_cpus": 1000000000,
+          "memory_bytes": 805306368,
+          "oom_killed": false,
+          "restart_count": 0
+        }
+      },
+      "migrate": {
+        "declared": {
+          "nano_cpus": 500000000,
+          "memory_bytes": 201326592
+        },
+        "actual": {
+          "nano_cpus": 500000000,
+          "memory_bytes": 201326592,
+          "oom_killed": false,
+          "restart_count": 0
+        }
+      },
+      "api": {
+        "declared": {
+          "nano_cpus": 500000000,
+          "memory_bytes": 201326592
+        },
+        "actual": {
+          "nano_cpus": 500000000,
+          "memory_bytes": 201326592,
+          "oom_killed": false,
+          "restart_count": 0
+        }
+      }
+    },
+    "resource_workload": {
+      "requests": 40,
+      "successful": 40,
+      "elapsed_seconds": 2.112,
+      "mean_latency_ms": 2.782,
+      "max_latency_ms": 4.179
+    },
+    "sampled_resources": {
+      "db": {
+        "sample_count": 7,
+        "max_sampled_memory_mib": 456.7,
+        "max_sampled_cpu_percent": 90.37
+      },
+      "migrate": {
+        "sample_count": 0,
+        "max_sampled_memory_mib": null,
+        "max_sampled_cpu_percent": null
+      },
+      "api": {
+        "sample_count": 2,
+        "max_sampled_memory_mib": 70.95,
+        "max_sampled_cpu_percent": 8.7
+      }
+    }
+  },
+  "security": {
+    "severity_threshold": "high",
+    "code_results_above_threshold": 0,
+    "dependencies_scanned": 52,
+    "dependency_ok": true,
+    "dependency_unique_issues_above_threshold": 0,
+    "scope": "Configured threshold; lower severities are not assessed by this summary"
+  },
+  "repository_snapshot": {
+    "default_branch": "main",
+    "main_commit": "3dd4079c8cfb250be17e68114daee75f6b7cf8e7",
+    "dependabot_open_alerts_default_branch": {
+      "critical": 4,
+      "high": 19,
+      "medium": 20,
+      "low": 7
+    },
+    "both_main_and_develop_protection": {
+      "required_checks": [
+        "pruebas",
+        "seguridad",
+        "imagen",
+        "despliegue"
+      ],
+      "strict": true,
+      "administrators": true,
+      "required_external_approvals": 0,
+      "conversation_resolution": true,
+      "force_push": false,
+      "deletion": false
+    }
+  }
+}

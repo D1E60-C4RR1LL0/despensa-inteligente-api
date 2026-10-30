@@ -1,13 +1,18 @@
-name: CI
+name: CI/CD
 
 on:
   push:
     branches:
       - develop
+      - main
 
   pull_request:
     branches:
+      - develop
       - main
+
+permissions:
+  contents: read
 
 jobs:
   pruebas:
@@ -18,17 +23,201 @@ jobs:
 
     steps:
       - name: Descargar repositorio
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Configurar Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
 
       - name: Instalar dependencias
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
 
       - name: Ejecutar pruebas
-        run: pytest
+        run: |
+          pytest --cov --cov-config=.coveragerc --cov-report=term-missing \
+            --cov-report=xml:.quality-reports/coverage.xml \
+            --cov-report=html:.quality-reports/html \
+            --junitxml=.quality-reports/junit.xml
+
+      - name: Conservar pruebas y cobertura
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: quality-${{ github.sha }}
+          path: |
+            .quality-reports/junit.xml
+            .quality-reports/coverage.xml
+            .quality-reports/html/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
+
+  seguridad:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SNYK_CFG_ORG: ${{ vars.SNYK_ORG }}
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Comprobar configuracion de Snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        shell: bash
+        run: |
+          if [ -z "$SNYK_TOKEN" ]; then
+            echo "::error::Configurar SNYK_TOKEN en los secretos de Actions y Dependabot."
+            exit 1
+          fi
+          if [ -z "$SNYK_CFG_ORG" ]; then
+            echo "::error::Configurar SNYK_ORG como variable del repositorio."
+            exit 1
+          fi
+
+      - name: Instalar Snyk CLI
+        uses: snyk/actions/setup@11b673cfb4b0dc0d860a1323caa199d54950dcce
+        with:
+          snyk-version: v1.1308.3
+
+      - name: Configurar Python para las dependencias
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependencias para el analisis
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Analizar codigo con Snyk Code
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p .security-reports
+          snyk code test --severity-threshold=high --json | tee .security-reports/snyk-code.json
+
+      - name: Analizar dependencias de esta rama con Snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        shell: bash
+        run: |
+          set -o pipefail
+          snyk test --file=requirements-dev.txt --package-manager=pip --command=python --severity-threshold=high --json | tee .security-reports/snyk-dependencies.json
+
+      - name: Conservar resultado de seguridad
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: snyk-security-${{ github.sha }}
+          path: .security-reports/*.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+
+  imagen:
+    needs: [pruebas, seguridad]
+    runs-on: ubuntu-latest
+    outputs:
+      image_id: ${{ steps.identidad.outputs.image_id }}
+    env:
+      API_IMAGE: inventory-api:${{ github.sha }}
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Configurar Python para la auditoria
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+
+      - name: Construir imagen Docker
+        run: docker build --label "org.opencontainers.image.revision=$GITHUB_SHA" --tag "$API_IMAGE" .
+
+      - name: Verificar Compose y persistencia
+        run: python scripts/audit_compose.py --image "$API_IMAGE"
+
+      - name: Registrar identidad y exportar imagen validada
+        id: identidad
+        run: |
+          image_id="$(docker image inspect --format '{{.Id}}' "$API_IMAGE")"
+          echo "image_id=$image_id" >> "$GITHUB_OUTPUT"
+          mkdir -p image-transfer
+          docker image save --output image-transfer/image.tar "$API_IMAGE"
+
+      - name: Transferir imagen al job de despliegue
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: api-image-${{ github.sha }}
+          path: image-transfer/image.tar
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
+
+  despliegue:
+    needs: imagen
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    environment: ${{ github.event_name == 'pull_request' && 'revision-simulada' || github.ref_name == 'main' && 'produccion-simulada' || 'staging-simulado' }}
+    env:
+      API_IMAGE: inventory-api:${{ github.sha }}
+      EXPECTED_IMAGE_ID: ${{ needs.imagen.outputs.image_id }}
+      DEPLOY_ENV: ${{ github.event_name == 'pull_request' && 'revision-simulada' || github.ref_name == 'main' && 'produccion-simulada' || 'staging-simulado' }}
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Configurar Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+
+      - name: Recibir la imagen del mismo workflow
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: api-image-${{ github.sha }}
+          path: image-transfer
+
+      - name: Cargar imagen sin reconstruir
+        run: docker image load --input image-transfer/image.tar
+
+      - name: Desplegar y validar API en entorno simulado
+        run: |
+          python scripts/deploy_simulated.py --image "$API_IMAGE" \
+            --expected-image-id "$EXPECTED_IMAGE_ID" --commit "$GITHUB_SHA" \
+            --environment "$DEPLOY_ENV" --output deployment/report.json
+
+      - name: Conservar evidencia del despliegue
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: deployment-${{ github.sha }}
+          path: deployment/report.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Comparar dos presupuestos de capacidad
+        run: |
+          python scripts/compare_capacity.py --image "$API_IMAGE" \
+            --expected-image-id "$EXPECTED_IMAGE_ID" --commit "$GITHUB_SHA" \
+            --environment "$DEPLOY_ENV" --output deployment/capacity-comparison.json
+
+      - name: Conservar comparacion de capacidad
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: capacity-${{ github.sha }}
+          path: |
+            deployment/capacity-comparison.json
+            deployment/capacity-comparison-runs/*.json
+          if-no-files-found: error
+          retention-days: 30
