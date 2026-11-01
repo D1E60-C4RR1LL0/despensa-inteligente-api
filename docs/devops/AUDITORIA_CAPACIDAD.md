@@ -65,7 +65,7 @@ La mediana del rendimiento por repetición fue **24,254 solicitudes/s** para sta
 
 La suite completa local posterior terminó con **134 aprobaciones y cuatro avisos de rollback ya existentes**, en 75,42 segundos. Cobertura global de sentencias de API: **856/923 = 92,74%**, con mínimo del proyecto de 80%. Son 34 comprobaciones aisladas y 100 de integración/configuración; el porcentaje sigue midiendo la API, no estos scripts. Los once casos nuevos rechazan imagen/carga/cuotas/limpieza inválidas, respuestas HTTP con datos equivocados y verifican el cálculo de métricas sin convertir un presupuesto más lento en una mejora ficticia.
 
-La ejecución remota y el estado de integración se verifican en el PR de `feature/e2-capacidad-compose` y en el push posterior a `develop`. El pipeline conserva `capacity-<SHA>`; una configuración de CI no sustituye la revisión del artefacto generado.
+La ejecución remota se verificó en el PR #18 y en la integración del PR #17 a main. El [CI de producción 41137641760](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/41137641760) completó las cuatro repeticiones con 9.600 respuestas correctas y limpieza. Su [artefacto capacity 13017089424](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/41137641760/artifacts/13017089424) fue descargado y verificado por SHA-256. Medianas de producción: standard 70,510 solicitudes/s y p95 por repetición 187,053 ms; expanded 146,054 y 84,082 ms, relación observada 2,071. Son datos de otro host, separados de la tabla local. Ver [cierre técnico](CIERRE_TECNICO_E2.md) para el resumen, los pendientes académicos y la conservación de evidencias.
 
 ## Límites de interpretación
 
