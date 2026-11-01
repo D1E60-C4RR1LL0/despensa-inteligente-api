@@ -36,8 +36,7 @@ Además, esta entrega incorpora un flujo de trabajo basado en **Git**, integraci
 - [Política de calidad y gobernanza](#política-de-calidad-y-gobernanza)
 - [Documentación de la API](#documentación-de-la-api)
 - [Estado del proyecto](#estado-del-proyecto)
-- [Planificación de la Evaluación 2](#planificación-de-la-evaluación-2)
-- [Matriz y pendientes de entrega E2](docs/devops/MATRIZ_EVIDENCIAS_E2.md)
+- [Trazabilidad y evidencias CI/CD](#trazabilidad-y-evidencias-cicd)
 
 ---
 
@@ -530,7 +529,7 @@ De esta manera, la validación del código no depende únicamente de una revisi�
 
 El job `pruebas` instala `requirements-dev.txt`; `seguridad` ejecuta Snyk Code y el análisis de dependencias. El job `imagen` espera que ambos aprueben, construye el Dockerfile y ejecuta `scripts/audit_compose.py` sobre la imagen con SHA, sin reconstruirla. El job `despliegue` recibe esa imagen mediante un artefacto del mismo workflow, verifica su ID y revisión OCI y la utiliza con `--no-build` en un nuevo proyecto Compose. El workflow mantiene permisos `contents: read`.
 
-El primer CI con Snyk bloqueó la imagen por una incidencia crítica de certifi. Tras corregirla, el bloque de seguridad pasó en PR y en el [merge a develop](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40871513844). La [auditoría de despliegue](docs/devops/AUDITORIA_DESPLIEGUE.md) distingue esas comprobaciones anteriores de la evidencia del nuevo job.
+El primer CI con Snyk bloqueó la imagen por una incidencia crítica de certifi. Tras corregirla, el bloque de seguridad pasó en PR y en el [merge a develop](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40871513844). Los resultados de cada versión se consultan en su ejecución de Actions y sus artefactos.
 
 ### CI y CD en este proyecto
 
@@ -598,7 +597,7 @@ Las pruebas cubren:
 
 ### Estado actual
 
-La E1 cerró con **49 pruebas automatizadas exitosas**. Con los casos críticos de inventario/JWT y los controles de capacidad, la suite local tiene **134 pruebas aprobadas** y **92,74% de cobertura global de sentencias de la API**. Incluye 34 comprobaciones aisladas y 100 de integración/configuración; no se presenta el total como pruebas unitarias puras. Las auditorías de [calidad/gobernanza](docs/devops/AUDITORIA_CALIDAD_GOBERNANZA.md) y [capacidad](docs/devops/AUDITORIA_CAPACIDAD.md) registran las mediciones, su alcance y las pruebas de bloqueo. Las auditorías anteriores conservan sus resultados históricos.
+La E1 cerró con **49 pruebas automatizadas exitosas**. Con los casos críticos de inventario/JWT y los controles de capacidad, la suite tiene **134 pruebas aprobadas** y **92,74% de cobertura global de sentencias de la API**. Incluye 34 comprobaciones aisladas y 100 de integración/configuración; no se presenta el total como pruebas unitarias puras. La [política de calidad](docs/devops/POLITICA_CALIDAD.md) define el alcance y los criterios de aprobación; el artefacto `quality-<SHA>` conserva los resultados de cada ejecución.
 
 Las mismas pruebas se ejecutan automáticamente mediante GitHub Actions.
 
@@ -724,7 +723,23 @@ Para una base vacía, aplicar las migraciones antes de iniciar la API:
 alembic upgrade head
 ```
 
-La aplicación ya no crea tablas automáticamente al arrancar. Si la base contiene tablas creadas por una versión anterior, seguir primero el [procedimiento para bases existentes](docs/devops/AUDITORIA_ARRANQUE.md#bases-existentes-con-tablas-creadas-automáticamente); la nueva migración detecta ese caso y se detiene antes de crear tablas de inventario.
+La aplicación ya no crea tablas automáticamente al arrancar. La nueva migración detecta tablas de inventario preexistentes y se detiene antes de crear otras. Para una base heredada, realizar un respaldo verificado y comprobar su revisión y esquema antes de adoptar las migraciones:
+
+```powershell
+alembic current
+python scripts/check_schema.py
+```
+
+`check_schema.py` usa `DATABASE_URL` del entorno o del `.env` y compara el esquema con los modelos sin modificarlo. Devuelve 0 cuando Alembic no detecta diferencias y 1 cuando las encuentra; también deben revisarse restricciones específicas no representadas por los modelos.
+
+Solo para una base heredada de E1 cuyo esquema y restricciones ya coincidan con la revisión `f3171e47e124`, y con respaldo verificado, se puede registrar esa revisión sin recrear tablas:
+
+```powershell
+alembic stamp f3171e47e124
+alembic upgrade head
+```
+
+`stamp` cambia la revisión registrada; no crea ni repara tablas. Si el esquema es parcial, diferente o de origen desconocido, se necesita una reconciliación específica antes de utilizarlo. Consultar la [autogeneración](https://alembic.sqlalchemy.org/en/latest/autogenerate.html) y el [cookbook de Alembic](https://alembic.sqlalchemy.org/en/latest/cookbook.html#building-an-up-to-date-database-from-scratch).
 
 ## 6. Iniciar la API
 
@@ -771,7 +786,7 @@ docker run --rm --publish 127.0.0.1:8000:8000 --env DATABASE_URL --env JWT_SECRE
 
 La demostración queda disponible en `http://localhost:8000/docs`. `Ctrl+C` detiene el servidor; el volumen conserva sus datos. Las variables anteriores afectan esa sesión de PowerShell y seleccionan SQLite para la demostración. El healthcheck consulta `/openapi.json`: acredita respuesta HTTP, mientras que la auditoría comprueba también operaciones con base de datos.
 
-Para conectar la imagen a MySQL, proporcionar una URL válida desde el contenedor: `localhost` dentro del contenedor identifica al propio contenedor. En Docker Desktop, una base del host puede requerir `host.docker.internal`; entre contenedores se usa su nombre de servicio o alias de red. El stack Compose de la siguiente sección utiliza `db`. Ver los resultados de la imagen en [AUDITORIA_DOCKER.md](docs/devops/AUDITORIA_DOCKER.md).
+Para conectar la imagen a MySQL, proporcionar una URL válida desde el contenedor: `localhost` dentro del contenedor identifica al propio contenedor. En Docker Desktop, una base del host puede requerir `host.docker.internal`; entre contenedores se usa su nombre de servicio o alias de red. El stack Compose de la siguiente sección utiliza `db`. El job `imagen` construye y verifica la imagen antes del despliegue.
 
 ---
 
@@ -779,7 +794,7 @@ Para conectar la imagen a MySQL, proporcionar una URL válida desde el contenedo
 
 El archivo `docker-compose.yml` define MySQL (`db`), una tarea breve de migración (`migrate`) y la API (`api`). La secuencia es: MySQL saludable → migraciones completadas → API. La tarea de migración reutiliza la imagen de la API y termina con código 0; ese estado es el esperado.
 
-Compose limita MySQL a 1 CPU/768 MiB y API/migraciones a 0,5 CPU/192 MiB cada uno. La [auditoría de recursos](docs/devops/AUDITORIA_RECURSOS.md) relaciona estos presupuestos con las clases y las mediciones locales. Son decisiones iniciales del proyecto para un host.
+Compose limita MySQL a 1 CPU/768 MiB y API/migraciones a 0,5 CPU/192 MiB cada uno. Son presupuestos iniciales del proyecto para un host. El despliegue comprueba sus valores efectivos en Docker y registra el consumo muestreado.
 
 Preparar una configuración local independiente del MySQL y del `.env` existentes:
 
@@ -813,7 +828,7 @@ Para comprobar arranque, persistencia, esquema y fallo de migración en un proye
 python scripts/audit_compose.py
 ```
 
-El script usa un proyecto, credenciales, puerto y volumen propios. Elimina exclusivamente ese proyecto de auditoría y sus datos al terminar. No utiliza `.env.compose`, el `.env` ni el MySQL existente del usuario. La correspondencia con semanas 6–7, las adaptaciones del proyecto y las evidencias están en [AUDITORIA_COMPOSE.md](docs/devops/AUDITORIA_COMPOSE.md).
+El script usa un proyecto, credenciales, puerto y volumen propios. Elimina exclusivamente ese proyecto de auditoría y sus datos al terminar. No utiliza `.env.compose`, el `.env` ni el MySQL existente del usuario. Sus comprobaciones forman parte del job `imagen` y sus resultados quedan en el log de Actions.
 
 ---
 
@@ -825,9 +840,9 @@ El entorno contiene la API, MySQL y el servicio Alembic del Compose existente. U
 
 La trazabilidad relaciona PR/commit, evento y rama, ejecución de Actions, etiqueta e ID de imagen y resultados funcionales en `deployment/report.json`. En PR se registra el commit de integración temporal; en push, el commit integrado. El informe se conserva en el artefacto `deployment-<SHA>` durante 30 días y se resume en Actions. La imagen de transferencia se conserva 1 día. El reporte no contiene contraseñas, JWT ni archivos `.env`.
 
-Los resultados locales y remotos, junto con las fuentes de clase y los pendientes de IE4, se registran en [AUDITORIA_DESPLIEGUE.md](docs/devops/AUDITORIA_DESPLIEGUE.md). Las retenciones y la transferencia de imágenes son decisiones de este proyecto para demostrar el requisito de trazabilidad.
+El artefacto `deployment-<SHA>` permite consultar el resultado y la identidad del despliegue de cada versión. Las retenciones y la transferencia de imágenes son decisiones de este proyecto para mantener su trazabilidad.
 
-Después del despliegue habitual, el mismo job ejecuta una [comparación de capacidad](docs/devops/AUDITORIA_CAPACIDAD.md) con 0,5 CPU/192 MiB y 1 CPU/384 MiB para la API. Mantiene imagen, MySQL, migraciones y datos equivalentes: 24 productos, 2.400 GET con ocho clientes concurrentes por repetición y dos repeticiones por presupuesto. El artefacto `capacity-<SHA>` conserva resultados, cuotas efectivas y limpieza durante 30 días. Fallan las respuestas incorrectas o las comparaciones inválidas; una mejora de rendimiento no es requisito del job. La prueba aporta evidencia de capacidad vertical en un host y no acredita autoscaling.
+Después del despliegue habitual, el mismo job ejecuta una comparación de capacidad con 0,5 CPU/192 MiB y 1 CPU/384 MiB para la API. Mantiene imagen, MySQL, migraciones y datos equivalentes: 24 productos, 2.400 GET con ocho clientes concurrentes por repetición y dos repeticiones por presupuesto. El orden es standard, expanded, expanded, standard. Se mide tiempo y latencia desde el cliente después de preparar los datos y ejecutar 16 consultas de calentamiento. Se validan los productos y cantidades de cada respuesta, además de su éxito HTTP. El artefacto `capacity-<SHA>` conserva resultados, cuotas efectivas y limpieza durante 30 días. Fallan las respuestas incorrectas o las comparaciones inválidas; una mejora de rendimiento no es requisito del job. La prueba aporta evidencia de capacidad vertical en un host; no demuestra autoscaling, capacidad máxima ni un SLA. Las métricas de distintos equipos se interpretan por separado.
 
 ---
 
@@ -837,7 +852,7 @@ Dependabot tiene alertas y actualizaciones de seguridad activadas en GitHub. `.g
 
 El job `seguridad` ejecuta `snyk code test` y `snyk test` con umbral `high`. `imagen` depende de `pruebas` y `seguridad`: un análisis fallido o no ejecutable bloquea la construcción y la auditoría Compose. La configuración requiere `SNYK_TOKEN` en los secretos de **Actions y Dependabot**, y `SNYK_ORG` como variable no secreta del repositorio. No guardar el token en archivos ni compartirlo en el chat.
 
-Se solicita salida JSON de Snyk y se conserva como artefacto durante 14 días. El [primer CI de seguridad](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40628001505) verificó la autenticación, aprobó Snyk Code con el umbral elegido y bloqueó la imagen por un hallazgo crítico de certifi. Se actualizó a la versión corregida y el siguiente CI aprobó. La [auditoría de seguridad](docs/devops/AUDITORIA_SEGURIDAD.md) registra esa evidencia, la línea base de 50 alertas y el ajuste posterior para subir informes de la carpeta oculta. Un análisis con umbral `high` no informa sobre todas las severidades.
+Se solicita salida JSON de Snyk y se conserva como artefacto durante 14 días. El [primer CI de seguridad](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40628001505) verificó la autenticación, aprobó Snyk Code con el umbral elegido y bloqueó la imagen por un hallazgo crítico de certifi. Se actualizó a la versión corregida y el siguiente CI aprobó. Cada ejecución conserva `snyk-code.json` y `snyk-dependencies.json` en `snyk-security-<SHA>`. Un análisis con umbral `high` no informa sobre todas las severidades.
 
 El registro público acepta únicamente el rol `user`, que también es el valor predeterminado. Intentar crear un administrador mediante `/signup` devuelve HTTP 422. Las cuentas administrativas existentes conservan sus permisos.
 
@@ -847,7 +862,7 @@ El registro público acepta únicamente el rol `user`, que también es el valor 
 
 La [política del proyecto](docs/devops/POLITICA_CALIDAD.md) exige aprobar todas las pruebas y alcanzar al menos 80% de cobertura global de sentencias de la API. El valor sigue el ejemplo de semana 8 y es una decisión del proyecto; la pauta no fija un porcentaje. `.coveragerc` define el alcance y el umbral; CI ejecuta PyTest con cobertura y conserva JUnit, XML y HTML durante 30 días, incluso ante fallos cuando se generan reportes.
 
-La suite distingue comprobaciones aisladas de JWT/configuración/identidad y pruebas de integración de API/BD, migraciones y contenedores. Su total no se presenta como cantidad de pruebas unitarias puras. La [auditoría de calidad y gobernanza](docs/devops/AUDITORIA_CALIDAD_GOBERNANZA.md) registra los casos críticos, resultados y demostraciones de bloqueo.
+La suite distingue comprobaciones aisladas de JWT/configuración/identidad y pruebas de integración de API/BD, migraciones y contenedores. Su total no se presenta como cantidad de pruebas unitarias puras. Los [casos automatizados](tests/) y los informes JUnit/cobertura permiten revisar los resultados. Un fallo de prueba o del umbral impide avanzar a imagen y despliegue.
 
 `main` y `develop` tienen protección configurada para exigir PR, rama actualizada, conversaciones resueltas y los cuatro checks aprobados. Las reglas se aplican también a administradores y deshabilitan force push y borrado de esas ramas. Se requieren cero aprobaciones externas obligatorias, manteniendo operable el flujo del repositorio; los checks no sustituyen una revisión independiente. [branch-protection.json](docs/devops/branch-protection.json) conserva la configuración aplicada mediante la API, no un mecanismo de aplicación automática.
 
@@ -898,13 +913,21 @@ http://localhost:8000/redoc
 
 ---
 
-## Planificación de la Evaluación 2
+## Trazabilidad y evidencias CI/CD
 
-La referencia de trabajo para la segunda entrega de Ingeniería DevOps está en la [guía maestra E2](docs/devops/GUIA_MAESTRA_E2_DOY0101.md). La [revisión inicial](docs/devops/REVISION_E2.md) contrasta esa guía con la pauta oficial y el repositorio, registra las pruebas ejecutadas y separa requisitos, recomendaciones y puntos por verificar.
+El flujo de entrega relaciona rama → commit → Pull Request → ejecución de Actions → etiqueta/ID de imagen → despliegue. La imagen incluye la revisión OCI del build y el despliegue rechaza una revisión o ID distintos. Los PR, commits, ejecuciones y artefactos se consultan en [GitHub Actions](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions).
 
-El [cierre técnico E2](docs/devops/CIERRE_TECNICO_E2.md) reúne el estado verificado al 1 de noviembre de 2026 y la [matriz](docs/devops/MATRIZ_EVIDENCIAS_E2.md) relaciona IE1–IE5 con clases y evidencias. La implementación se integró en main mediante el [PR #17](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/pull/17). El [CI/CD 41137641760](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/41137641760) aprobó los cuatro jobs: 134 pruebas, 92,74% de cobertura de API, Snyk y producción simulada. La comparación completó 9.600 lecturas correctas con dos presupuestos limitados de API. Los informes se descargaron y verificaron; el resumen de main quedó versionado. Las auditorías anteriores conservan su evidencia histórica.
+La implementación E2 se integró mediante el [PR #17](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/pull/17) y la documentación se actualizó en el [PR #20](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/pull/20). El [CI de main 41344343505](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/41344343505) aprobó los cuatro jobs: 134 pruebas, 92,74% de cobertura de API, Snyk y producción simulada. La comparación de capacidad completó 9.600 lecturas correctas. Estos resultados corresponden a ese commit y ejecución; consultar los checks del head para versiones posteriores.
 
-Quedan por confirmar/completar el informe y las reflexiones propias del equipo, su revisión y la entrega por AVA/correo dentro del plazo indicado por el docente. La orquestación demostrada corresponde a capacidad vertical en un host; no se acredita autoscaling ni se garantiza una calificación con los resultados de CI. Consultar los checks del head final en Actions después de integrar la documentación.
+| Artefacto | Contenido | Retención |
+|---|---|---:|
+| `quality-<SHA>` | JUnit y cobertura XML/HTML | 30 días |
+| `snyk-security-<SHA>` | Snyk Code y dependencias JSON | 14 días |
+| `deployment-<SHA>` | Identidad, ambiente, comprobaciones y limpieza | 30 días |
+| `capacity-<SHA>` | Comparación y cuatro repeticiones con cuotas y métricas | 30 días |
+| `api-image-<SHA>` | Imagen validada transferida entre jobs | 1 día |
+
+Conservar los informes necesarios antes de su vencimiento. En el desarrollo y la documentación técnica se utilizó Codex como herramienta de apoyo.
 
 ## Licencia
 
