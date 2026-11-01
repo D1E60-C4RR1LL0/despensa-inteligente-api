@@ -1,0 +1,188 @@
+{
+  "repository": "D1E60-C4RR1LL0/despensa-inteligente-api",
+  "main_commit": "ac9319e41eeed036f68a6a245fce9095c4a4bb47",
+  "run_id": 41137641760,
+  "run_url": "https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/41137641760",
+  "jobs": [
+    {
+      "id": 124343924882,
+      "name": "pruebas",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 124343925234,
+      "name": "seguridad",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 124344269798,
+      "name": "imagen",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 124344806799,
+      "name": "despliegue",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "quality": {
+    "passed": 134,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "api_statement_coverage_percent": 92.74,
+    "covered": 856,
+    "statements": 923
+  },
+  "security": {
+    "threshold": "high",
+    "code_results": 0,
+    "dependency_count": 52,
+    "dependency_unique_issues": 0,
+    "scope": "Configured high threshold; not proof of absence at lower severities"
+  },
+  "deployment": {
+    "status": "success",
+    "environment": "produccion-simulada",
+    "commit": "ac9319e41eeed036f68a6a245fce9095c4a4bb47",
+    "event": "push",
+    "ref": "refs/heads/main",
+    "image_id": "sha256:9cb334758f41aaf9a94cde5b9162272c03c7a7c7cb346821fcc33183ba014d2d",
+    "checks": {
+      "build_identity": true,
+      "container_identity": true,
+      "migrations": true,
+      "healthy": true,
+      "openapi": true,
+      "signup": true,
+      "login": true,
+      "database_read_write": true,
+      "resource_limits": true
+    },
+    "cleanup": "success",
+    "effective_limits": {
+      "db": {
+        "declared": {
+          "nano_cpus": 1000000000,
+          "memory_bytes": 805306368
+        },
+        "actual": {
+          "nano_cpus": 1000000000,
+          "memory_bytes": 805306368,
+          "oom_killed": false,
+          "restart_count": 0
+        }
+      },
+      "migrate": {
+        "declared": {
+          "nano_cpus": 500000000,
+          "memory_bytes": 201326592
+        },
+        "actual": {
+          "nano_cpus": 500000000,
+          "memory_bytes": 201326592,
+          "oom_killed": false,
+          "restart_count": 0
+        }
+      },
+      "api": {
+        "declared": {
+          "nano_cpus": 500000000,
+          "memory_bytes": 201326592
+        },
+        "actual": {
+          "nano_cpus": 500000000,
+          "memory_bytes": 201326592,
+          "oom_killed": false,
+          "restart_count": 0
+        }
+      }
+    },
+    "resource_workload": {
+      "requests": 40,
+      "successful": 40,
+      "elapsed_seconds": 2.166,
+      "mean_latency_ms": 4.119,
+      "max_latency_ms": 49.345
+    }
+  },
+  "capacity": {
+    "status": "success",
+    "repetitions": 4,
+    "image_id": "sha256:9cb334758f41aaf9a94cde5b9162272c03c7a7c7cb346821fcc33183ba014d2d",
+    "successful_requests": 9600,
+    "comparison": {
+      "profiles": {
+        "standard": {
+          "api_limits": {
+            "cpus": 0.5,
+            "mem_limit": "192m"
+          },
+          "repetitions": 2,
+          "median_requests_per_second": 70.51,
+          "median_p95_latency_ms": 187.053,
+          "successful_requests": 4800,
+          "errors": 0
+        },
+        "expanded": {
+          "api_limits": {
+            "cpus": 1.0,
+            "mem_limit": "384m"
+          },
+          "repetitions": 2,
+          "median_requests_per_second": 146.054,
+          "median_p95_latency_ms": 84.082,
+          "successful_requests": 4800,
+          "errors": 0
+        }
+      },
+      "observed_throughput_ratio_expanded_over_standard": 2.071,
+      "scope": "Observed vertical budget comparison on one host; not maximum capacity, SLA or autoscaling"
+    }
+  },
+  "review_date": "2026-11-01",
+  "scope": "Verified implementation main ac9319e; subsequent documentation-only commits require their own CI checks",
+  "artifacts": [
+    {
+      "id": 13017089424,
+      "name": "capacity-ac9319e41eeed036f68a6a245fce9095c4a4bb47",
+      "digest": "sha256:7c6fe7e8dff0a8f4fec2538abb74a869baaf9042d1a19ab55d20202efd473d2e",
+      "expires_at": "2026-11-29T22:28:32Z",
+      "zip_digest_verified_locally": true
+    },
+    {
+      "id": 13016379086,
+      "name": "quality-ac9319e41eeed036f68a6a245fce9095c4a4bb47",
+      "digest": "sha256:71a5d606d7b28d25a885110ec09169e3eed607b218609a125a1882d7dfe21ee6",
+      "expires_at": "2026-11-29T22:22:54Z",
+      "zip_digest_verified_locally": true
+    },
+    {
+      "id": 13016359281,
+      "name": "deployment-ac9319e41eeed036f68a6a245fce9095c4a4bb47",
+      "digest": "sha256:d146bac3c5407ad7eb3cfc94fa265cefdaf9102f5d428abddd1f787bee0f0011",
+      "expires_at": "2026-11-29T22:25:13Z",
+      "zip_digest_verified_locally": true
+    },
+    {
+      "id": 13016114463,
+      "name": "snyk-security-ac9319e41eeed036f68a6a245fce9095c4a4bb47",
+      "digest": "sha256:58769900a7b317da40dfece8b18cb4805175c4002bef30545e5dfe4e7161cee5",
+      "expires_at": "2026-11-13T22:22:42Z",
+      "zip_digest_verified_locally": true
+    }
+  ],
+  "dependabot": {
+    "checked_at_utc": "2026-11-01T19:35:58.380302+00:00",
+    "open_alerts": 0,
+    "fixed_alerts": 50,
+    "dismissed_alerts": 0,
+    "previous_open_2026_10_30": 50,
+    "source": "Authenticated GitHub REST reads for open/fixed/dismissed; no alert mutations"
+  },
+  "pending": "Team report, conclusions, individual reflections, IA declaration/citation and AVA/email submission; confirm with team"
+}
