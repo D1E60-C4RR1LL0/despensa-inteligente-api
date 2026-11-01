@@ -359,6 +359,9 @@ pyrightconfig.json
 # Local History for Visual Studio Code
 .history/
 
+# Material auxiliar agrupado para conservar fuera de la entrega.
+/_material_apoyo_ia/
+
 # Built Visual Studio Code Extensions
 *.vsix
 
