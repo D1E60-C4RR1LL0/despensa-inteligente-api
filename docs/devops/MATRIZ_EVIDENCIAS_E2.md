@@ -4,7 +4,11 @@ Fecha de corte: 29 de octubre de 2026. Base técnica: `develop`, commit `67b6ab1
 
 La fuente normativa es `EP2_DOY0101_Estudiante.pdf`: instrucciones en pp. 1–3 y rúbrica en pp. 4–5. Se releyó su extracción y se comprobó el SHA-256 del PDF original, coincidente con [REVISION_E2.md](REVISION_E2.md). Cada IE pondera 20%. Los estados siguientes describen evidencia observada; no asignan porcentajes de logro ni garantizan una nota.
 
-## Matriz por indicador
+## Estado actual de entrega — 1 de noviembre de 2026
+
+El [cierre técnico E2](CIERRE_TECNICO_E2.md) sustituye los pendientes técnicos de las fotografías históricas siguientes. Implementación integrada en main mediante PR #17, commit `ac9319e`, CI 41137641760 con cuatro jobs aprobados: 134 pruebas, cobertura API 92,74%, Snyk, producción simulada y 9.600 lecturas de capacidad correctas. La API de Dependabot confirmó 0 abiertas, 50 corregidas y 0 descartadas el 01-11-2026. El [resumen de main](evidencias/cierre-main-ac9319e.json) conserva la evidencia revalidada. El informe/reflexiones del equipo y la entrega por AVA/correo siguen pendientes según la última confirmación disponible. Verificar los checks del head documental final en Actions.
+
+## Matriz histórica por indicador — base del 29 de octubre
 
 Actualización del 30 de octubre: el PR #16 integró la matriz en `develop` (`79b3813`); el PR #17 hacia `main` está en borrador. La [auditoría de capacidad](AUDITORIA_CAPACIDAD.md) incorpora evidencia adicional para IE3/IE5: dos presupuestos de API, dos repeticiones por presupuesto, 24 productos con stock y 2.400 lecturas concurrentes por repetición. Localmente se comprobaron 9.600 respuestas correctas, cuotas efectivas y limpieza; la ejecución remota del nuevo bloque se consulta en su PR. El alcance sigue siendo capacidad vertical en un host. Las filas siguientes conservan la evidencia base identificada al inicio; el nuevo bloque no acredita autoscaling ni una nota máxima automática.
 
@@ -39,7 +43,7 @@ El [resumen versionado](evidencias/cierre-develop-67b6ab1.json) conserva identid
 
 Estas pruebas negativas son evidencias elegidas por el proyecto para mostrar los controles; no se convierten en requisitos textuales adicionales.
 
-## Pendientes y secuencia de cierre
+## Secuencia histórica de cierre — consultar estado actual arriba
 
 | Paso | Acción | Evidencia para cerrarlo | Estado al corte |
 |---|---|---|---|

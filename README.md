@@ -889,12 +889,12 @@ http://localhost:8000/redoc
 | Imagen Docker de la API | ✅ Validada localmente con MySQL temporal |
 | Construcción Docker en CI | ✅ Validada en el PR #6 y su merge en develop |
 | Orquestación con Compose | ✅ Validada localmente y en CI del PR #7 y su merge |
-| Seguridad Snyk | ✅ Integrada en develop y verificada tras el merge del PR #12 |
-| Despliegue simulado | ✅ Integrado y verificado por push a develop tras el PR #13 |
+| Seguridad Snyk | ✅ Code y dependencias verificados en el CI de main con umbral high |
+| Despliegue simulado | ✅ Producción simulada de main verificada en CI 41137641760 |
 | Política de calidad y protección de ramas | ✅ Verificadas tras el PR #14 y releídas para el cierre |
 | Límites y medición de recursos | ✅ Integrados mediante PR #15; cuotas y funcionamiento verificados en CI de develop |
-| Dependabot programado | Configurado; pendiente de activación/verificación al llegar a main |
-| Producción simulada E2 en main | Configurada; ejecución pendiente del PR de entrega |
+| Dependabot | ✅ Configuración semanal en main; 0 alertas abiertas, 50 corregidas y 0 descartadas al 01-11-2026 |
+| Producción simulada E2 en main | ✅ PR #17 integrado y cuatro jobs aprobados; imagen, cuotas, capacidad y limpieza comprobadas |
 
 ---
 
@@ -902,9 +902,9 @@ http://localhost:8000/redoc
 
 La referencia de trabajo para la segunda entrega de Ingeniería DevOps está en la [guía maestra E2](docs/devops/GUIA_MAESTRA_E2_DOY0101.md). La [revisión inicial](docs/devops/REVISION_E2.md) contrasta esa guía con la pauta oficial y el repositorio, registra las pruebas ejecutadas y separa requisitos, recomendaciones y puntos por verificar.
 
-La [matriz de evidencias E2](docs/devops/MATRIZ_EVIDENCIAS_E2.md) reúne IE1–IE5, fuentes de clase, archivos, ejecuciones y pendientes. Su base es `develop` en `67b6ab1`, después de integrar los bloques de seguridad, despliegue, calidad/gobernanza y recursos. El [CI/CD por push 40937752277](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40937752277) aprobó los cuatro jobs; sus reportes verificaron 123 pruebas, 92,74% de cobertura de API, Snyk sobre el umbral y staging con límites efectivos y limpieza. Las auditorías de cada bloque conservan su evidencia histórica; la matriz distingue ese historial del estado de cierre.
+El [cierre técnico E2](docs/devops/CIERRE_TECNICO_E2.md) reúne el estado verificado al 1 de noviembre de 2026 y la [matriz](docs/devops/MATRIZ_EVIDENCIAS_E2.md) relaciona IE1–IE5 con clases y evidencias. La implementación se integró en main mediante el [PR #17](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/pull/17). El [CI/CD 41137641760](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/41137641760) aprobó los cuatro jobs: 134 pruebas, 92,74% de cobertura de API, Snyk y producción simulada. La comparación completó 9.600 lecturas correctas con dos presupuestos limitados de API. Los informes se descargaron y verificaron; el resumen de main quedó versionado. Las auditorías anteriores conservan su evidencia histórica.
 
-Quedan el informe y las reflexiones propias del equipo, el PR de entrega a `main`, la comprobación de producción simulada y de Dependabot programado, y la entrega por los canales indicados por el docente. La orquestación demostrada corresponde a un host; no se acredita autoscaling ni se garantiza una calificación con los resultados de CI.
+Quedan por confirmar/completar el informe y las reflexiones propias del equipo, su revisión y la entrega por AVA/correo dentro del plazo indicado por el docente. La orquestación demostrada corresponde a capacidad vertical en un host; no se acredita autoscaling ni se garantiza una calificación con los resultados de CI. Consultar los checks del head final en Actions después de integrar la documentación.
 
 ## Licencia
 
