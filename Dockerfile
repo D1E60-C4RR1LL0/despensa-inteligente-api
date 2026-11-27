@@ -1,4 +1,7 @@
-FROM python:3.12-slim-bookworm
+
+FROM python:3.12-alpine@sha256:c5ba3deef00c7758561a0f03c26f44f10589263d40e732b8748e0d1f38f6dd89
+
+RUN apk upgrade --no-cache krb5-libs
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -8,8 +11,8 @@ WORKDIR /app
 
 COPY requirements.txt ./
 RUN python -m pip install --no-cache-dir --only-binary=:all: -r requirements.txt \
-    && groupadd --gid 10001 app \
-    && useradd --uid 10001 --gid app --no-create-home --home-dir /app app \
+    && addgroup -S -g 10001 app \
+    && adduser -S -D -H -u 10001 -G app -h /app app \
     && mkdir /data \
     && chown app:app /data
 

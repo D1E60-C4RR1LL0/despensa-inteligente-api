@@ -138,11 +138,41 @@ jobs:
         with:
           python-version: "3.12"
 
+
       - name: Construir imagen Docker
         run: docker build --label "org.opencontainers.image.revision=$GITHUB_SHA" --tag "$API_IMAGE" .
 
+      - name: Instalar Snyk CLI para contenedores
+        uses: snyk/actions/setup@11b673cfb4b0dc0d860a1323caa199d54950dcce
+        with:
+          snyk-version: v1.1308.3
+
+      - name: Analizar imagen Docker con Snyk Container
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          SNYK_CFG_ORG: ${{ vars.SNYK_ORG }}
+        shell: bash
+        run: |
+          mkdir -p .security-reports
+          snyk container test "$API_IMAGE" \
+            --file=Dockerfile \
+            --severity-threshold=high \
+            --json-file-output=.security-reports/snyk-container.json
+          test -s .security-reports/snyk-container.json
+
+      - name: Conservar reporte de Snyk Container
+        if: always() && hashFiles('.security-reports/snyk-container.json') != ''
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: snyk-container-${{ github.sha }}
+          path: .security-reports/snyk-container.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Verificar Compose y persistencia
         run: python scripts/audit_compose.py --image "$API_IMAGE"
+
 
       - name: Registrar identidad y exportar imagen validada
         id: identidad

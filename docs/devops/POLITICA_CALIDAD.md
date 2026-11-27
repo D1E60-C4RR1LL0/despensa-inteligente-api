@@ -1,4 +1,4 @@
-# Política de calidad de la API — E2
+# Política de calidad de la API
 
 Política acordada para este proyecto, basada en los contenidos de semanas 8–9 y la rúbrica IE2/IE3. El 80% se adopta como decisión del proyecto; la pauta no impone ese porcentaje. Esta documentación de asistencia se elaboró con Codex y debe ser validada por el equipo.
 
@@ -6,8 +6,8 @@ Política acordada para este proyecto, basada en los contenidos de semanas 8–9
 
 1. Todas las pruebas automatizadas deben aprobar.
 2. La cobertura global de sentencias de los módulos de la API debe ser al menos 80%, según `.coveragerc`.
-3. Snyk debe aprobar con la política `high` ya configurada.
-4. La imagen debe construirse y aprobar la auditoría Compose.
+3. Snyk Code y Snyk Open Source deben aprobar con el umbral de severidad `high` configurado.
+4. La imagen Docker de la API debe construirse, aprobar el análisis de Snyk Container con umbral `high` y superar la auditoría Compose. Las vulnerabilidades altas o críticas y los errores de ejecución del análisis deben bloquear el avance al despliegue.
 5. El despliegue de revisión debe confirmar identidad de imagen, funcionamiento, límites efectivos de recursos sin OOM/reinicios observados, muestras válidas de API/MySQL y limpieza. La comparación de capacidad debe completar cuatro repeticiones comparables con respuestas correctas; no se exige una mejora de velocidad para aprobar. El [README](../../README.md#despliegue-automático-simulado) describe el escenario y los artefactos que conservan sus resultados.
 6. `develop` y `main` requieren Pull Request, rama actualizada, conversaciones resueltas y los checks `pruebas`, `seguridad`, `imagen` y `despliegue` aprobados. Las protecciones también se aplican a administradores.
 
@@ -46,3 +46,16 @@ Para ejecutar solo el grupo aislado durante el desarrollo:
 ```
 
 El primer comando coincide con el control de CI. Un fallo de prueba o del umbral devuelve un estado fallido e impide avanzar a imagen/despliegue. El artefacto `quality-<SHA>` conserva JUnit, XML y HTML durante 30 días, también ante fallos cuando se generan archivos. No se versionan el archivo de datos de cobertura ni las bases de prueba. Los resultados se consultan en [Actions](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions); el [README](../../README.md#trazabilidad-y-evidencias-cicd) explica cómo relacionarlos con el commit y despliegue.
+
+
+
+## Control de seguridad de imágenes Docker
+
+- La imagen de la API se analiza después de su construcción.
+- El análisis se realiza sobre la misma imagen que posteriormente será auditada y transferida al job de despliegue.
+- El umbral de severidad establecido es `high`.
+- Un código de salida distinto de cero bloquea el pipeline.
+- Los reportes JSON se conservan durante 30 días cuando se generan.
+- La corrección de vulnerabilidades debe verificarse mediante un nuevo escaneo.
+- Los cambios de imagen base deben superar las validaciones funcionales correspondientes.
+- Las referencias SHA-256 de las imágenes base deben revisarse y actualizarse cuando corresponda.
