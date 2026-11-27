@@ -496,15 +496,20 @@ on:
 
 ```mermaid
 flowchart TD
-    cambio[Push o Pull Request] --> pruebas[PyTest]
+    cambio[Push o Pull Request] --> pruebas[Pytest y cobertura]
     cambio --> seguridad[Snyk Code y dependencias]
-    pruebas --> imagen[Build y auditoría Compose]
+    pruebas --> imagen[Construir imagen Docker]
     seguridad --> imagen
-    imagen --> artefacto[Imagen validada e ID]
+    imagen --> container[Snyk Container]
+    container --> decision{Escaneo aprobado}
+    decision -->|No| bloqueo[Bloquear pipeline]
+    decision -->|Sí| auditoria[Auditoría Compose]
+    auditoria --> artefacto[Imagen validada e ID]
     artefacto --> despliegue[Despliegue Compose en otro runner]
     despliegue --> validacion[Validación HTTP y MySQL]
     validacion --> reporte[Reporte de trazabilidad y limpieza]
 ```
+
 
 ## Rol de GitHub Actions dentro de CI/CD
 
@@ -763,8 +768,9 @@ Construir la imagen desde la raíz:
 docker build --tag inventory-api:e2-docker .
 ```
 
-La imagen usa Python 3.12, ejecuta Uvicorn en `0.0.0.0:8000` como usuario `app` y recibe `DATABASE_URL` y `JWT_SECRET_KEY` en tiempo de ejecución. Incluye Alembic, pero las migraciones se ejecutan explícitamente antes de arrancar el servidor. `.dockerignore` limita el contexto a los archivos necesarios y excluye `.env`, Git, entornos virtuales, pruebas y bases locales.
+La imagen utiliza Python 3.12 sobre Alpine Linux 3.24, con una referencia SHA-256 fijada en el Dockerfile. Durante la construcción se actualiza el paquete `krb5-libs` mediante `apk` para incorporar las correcciones de seguridad disponibles.
 
+La API ejecuta Uvicorn en `0.0.0.0:8000` como usuario no root `app`, con UID y GID 10001, y recibe `DATABASE_URL` y `JWT_SECRET_KEY` en tiempo de ejecución. Incluye Alembic, pero las migraciones se ejecutan explícitamente antes de arrancar el servidor. `.dockerignore` limita el contexto a los archivos necesarios y excluye `.env`, Git, entornos virtuales, pruebas y bases locales.
 Para una comprobación completa y desechable con MySQL, incluido el arranque real del servidor y peticiones HTTP:
 
 ```powershell
@@ -854,7 +860,47 @@ El job `seguridad` ejecuta `snyk code test` y `snyk test` con umbral `high`. `im
 
 Se solicita salida JSON de Snyk y se conserva como artefacto durante 14 días. El [primer CI de seguridad](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40628001505) verificó la autenticación, aprobó Snyk Code con el umbral elegido y bloqueó la imagen por un hallazgo crítico de certifi. Se actualizó a la versión corregida y el siguiente CI aprobó. Cada ejecución conserva `snyk-code.json` y `snyk-dependencies.json` en `snyk-security-<SHA>`. Un análisis con umbral `high` no informa sobre todas las severidades.
 
-El registro público acepta únicamente el rol `user`, que también es el valor predeterminado. Intentar crear un administrador mediante `/signup` devuelve HTTP 422. Las cuentas administrativas existentes conservan sus permisos.
+
+## Escaneo de imágenes Docker con Snyk Container
+
+El job `imagen` incorpora un análisis de seguridad mediante Snyk Container después de construir la imagen Docker y antes de ejecutar la auditoría Compose.
+
+El análisis utiliza el umbral `high`, incluyendo vulnerabilidades de severidad alta y crítica. Un resultado distinto de cero impide completar el job y bloquea el despliegue.
+
+### Resultados de las validaciones locales
+
+| Indicador | Bookworm | Trixie | Alpine corregido |
+|---|---:|---:|---:|
+| Vulnerabilidades altas | 13 | 2 | 0 |
+| Vulnerabilidades críticas | 1 | 0 | 0 |
+| Tamaño de imagen | 214 MB | 210 MB | 147 MB |
+| Escaneo aprobado | No | No | Sí |
+
+La imagen Alpine corregida utiliza Python 3.12 y el paquete
+`krb5-libs` en su versión 1.22.3-r0 durante la validación realizada.
+
+### Ejecución local
+
+```powershell
+docker build -t inventory-api:security-review .
+snyk container test inventory-api:security-review --file=Dockerfile --severity-threshold=high
+```
+
+### Evidencias automatizadas
+
+El workflow está configurado para generar el archivo
+`.security-reports/snyk-container.json` y conservarlo mediante
+el artefacto `snyk-container-<SHA>` durante 30 días.
+
+El escaneo local de la imagen final aprobó con código 0.
+También se validaron el reporte JSON, la auditoría Compose
+y las 134 pruebas automatizadas en el entorno de desarrollo,
+manteniendo una cobertura global del 92,74%.
+
+El escaneo corresponde a la imagen de la API y sus dependencias.
+No acredita por sí solo la seguridad de la imagen MySQL ni de
+otros servicios del entorno.
+
 
 ---
 
@@ -910,6 +956,8 @@ http://localhost:8000/redoc
 | Límites y medición de recursos | ✅ Integrados mediante PR #15; cuotas y funcionamiento verificados en CI de develop |
 | Dependabot | ✅ Configuración semanal en main; 0 alertas abiertas, 50 corregidas y 0 descartadas al 01-11-2026 |
 | Producción simulada E2 en main | ✅ PR #17 integrado y cuatro jobs aprobados; imagen, cuotas, capacidad y limpieza comprobadas |
+| Snyk Container | ✅ Validado localmente; ejecución CI pendiente |
+| Imagen Alpine corregida | ✅ Escaneo y auditoría Compose aprobados |
 
 ---
 
@@ -926,6 +974,7 @@ La implementación E2 se integró mediante el [PR #17](https://github.com/D1E60-
 | `deployment-<SHA>` | Identidad, ambiente, comprobaciones y limpieza | 30 días |
 | `capacity-<SHA>` | Comparación y cuatro repeticiones con cuotas y métricas | 30 días |
 | `api-image-<SHA>` | Imagen validada transferida entre jobs | 1 día |
+| `snyk-container-<SHA>` | Análisis de vulnerabilidades de la imagen Docker en JSON | 30 días |
 
 Conservar los informes necesarios antes de su vencimiento. En el desarrollo y la documentación técnica se utilizó Codex como herramienta de apoyo.
 
