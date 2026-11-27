@@ -860,6 +860,8 @@ El job `seguridad` ejecuta `snyk code test` y `snyk test` con umbral `high`. `im
 
 Se solicita salida JSON de Snyk y se conserva como artefacto durante 14 días. El [primer CI de seguridad](https://github.com/D1E60-C4RR1LL0/despensa-inteligente-api/actions/runs/40628001505) verificó la autenticación, aprobó Snyk Code con el umbral elegido y bloqueó la imagen por un hallazgo crítico de certifi. Se actualizó a la versión corregida y el siguiente CI aprobó. Cada ejecución conserva `snyk-code.json` y `snyk-dependencies.json` en `snyk-security-<SHA>`. Un análisis con umbral `high` no informa sobre todas las severidades.
 
+El registro público acepta únicamente el rol `user`, que también es el valor predeterminado. Intentar crear un administrador mediante `/signup` devuelve HTTP 422. Las cuentas administrativas existentes conservan sus permisos.
+
 
 ## Escaneo de imágenes Docker con Snyk Container
 
