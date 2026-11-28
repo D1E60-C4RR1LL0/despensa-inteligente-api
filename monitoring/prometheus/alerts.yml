@@ -1,0 +1,29 @@
+
+groups:
+  - name: despensa-inteligente
+    rules:
+
+      - alert: APINoDisponible
+        expr: |
+          up{job="despensa-api"} == 0
+          or absent(up{job="despensa-api"})
+        for: 30s
+        labels:
+          severity: critical
+          service: api
+        annotations:
+          summary: "API no disponible"
+          description: "Prometheus no puede recopilar las metricas de FastAPI."
+
+      - alert: MySQLNoDisponible
+        expr: |
+          inventory_database_up{job="despensa-inventario"} == 0
+          and on(job, instance)
+          up{job="despensa-inventario"} == 1
+        for: 60s
+        labels:
+          severity: critical
+          service: database
+        annotations:
+          summary: "Error en consultas a MySQL"
+          description: "La API no puede completar las consultas de inventario."
