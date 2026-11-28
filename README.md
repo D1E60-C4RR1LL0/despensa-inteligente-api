@@ -35,6 +35,7 @@ Además, esta entrega incorpora un flujo de trabajo basado en **Git**, integraci
 - [Seguridad del pipeline](#seguridad-del-pipeline)
 - [Política de calidad y gobernanza](#política-de-calidad-y-gobernanza)
 - [Documentación de la API](#documentación-de-la-api)
+- [Monitoreo y observabilidad](#monitoreo-y-observabilidad)
 - [Estado del proyecto](#estado-del-proyecto)
 - [Trazabilidad y evidencias CI/CD](#trazabilidad-y-evidencias-cicd)
 
@@ -933,6 +934,39 @@ http://localhost:8000/redoc
 ```
 
 ---
+
+
+## Monitoreo y observabilidad — E3
+
+La aplicación incorpora un entorno de observabilidad
+mediante Prometheus, Grafana y cAdvisor.
+
+El monitoreo contempla métricas HTTP, disponibilidad,
+latencia, errores, recursos de contenedores e indicadores
+específicos del inventario.
+
+### Accesos del entorno local E3
+
+| Servicio | Dirección |
+|---|---|
+| FastAPI | http://localhost:8001/docs |
+| Métricas HTTP | http://localhost:8001/metrics |
+| Métricas de inventario | http://localhost:8001/metrics/inventario |
+| Prometheus | http://localhost:9090 |
+| Grafana | http://localhost:3000 |
+
+### Resultados de pruebas
+
+- 137 pruebas automatizadas aprobadas.
+- Cobertura global del 93,22%.
+- Dashboard personalizado de 12 paneles.
+- Detección automática de caída y recuperación de FastAPI.
+
+Para consultar la arquitectura, configuración, métricas,
+alarmas y validaciones realizadas, revisar la
+[documentación de observabilidad](docs/devops/OBSERVABILIDAD.md).
+
+
 
 # Estado del proyecto
 
