@@ -9,12 +9,18 @@ from schemas.token import Token
 from schemas.user import UserCreate, UserResponse
 from utils.utils import create_access_token, get_password_hash, verify_password, add_token_to_blacklist
 from routes import users, profile, categorias, proveedores, ubicaciones, productos, stocks, tipos_movimiento, movimientos
+from utils.metrics import configure_metrics
+from utils.inventory_metrics import router as inventory_metrics_router
+
 
 app = FastAPI(
     title="Sistema de Inventario API",
     description="API para la gestión de inventario de productos",
     version="1.0.0"
 )
+
+configure_metrics(app)
+app.include_router(inventory_metrics_router)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
